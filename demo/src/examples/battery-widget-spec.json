@@ -1,0 +1,69 @@
+{
+  "widget": {
+    "width": 158,
+    "height": 158,
+    "backgroundColor": "#000000",
+    "borderRadius": 20,
+    "padding": 16,
+    "root": {
+      "type": "container",
+      "direction": "col",
+      "gap": 16,
+      "alignMain": "between",
+      "children": [
+        {
+          "type": "container",
+          "direction": "row",
+          "gap": 8,
+          "alignCross": "center",
+          "alignMain": "between",
+          "children": [
+            {
+              "type": "leaf",
+              "kind": "media.icon",
+              "props": {
+                "size": 20,
+                "color": "#34C759",
+                "name": "bolt.fill"
+              }
+            },
+            {
+              "type": "leaf",
+              "kind": "text.label",
+              "props": {
+                "fontSize": 12,
+                "color": "#98989d"
+              },
+              "content": "Battery"
+            }
+          ]
+        },
+        {
+          "type": "container",
+          "direction": "col",
+          "gap": 4,
+          "children": [
+            {
+              "type": "leaf",
+              "kind": "number.metric",
+              "props": {
+                "fontSize": 48,
+                "color": "#34C759"
+              },
+              "content": "87%"
+            },
+            {
+              "type": "leaf",
+              "kind": "text.label",
+              "props": {
+                "fontSize": 13,
+                "color": "#98989d"
+              },
+              "content": "4h 23m remaining"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "widget": {
+    "width": 158,
+    "height": 158,
+    "backgroundColor": "#f2f2f7",
+    "borderRadius": 20,
+    "padding": 16,
+    "root": {
+      "type": "container",
+      "direction": "col",
+      "gap": 12,
+      "alignMain": "between",
+      "children": [
+        {
+          "type": "container",
+          "direction": "row",
+          "gap": 8,
+          "alignCross": "center",
+          "children": [
+            {
+              "type": "leaf",
+              "kind": "media.icon",
+              "props": {
+                "size": 24,
+                "color": "#FF9500",
+                "name": "cloud.sun.fill"
+              }
+            },
+            {
+              "type": "leaf",
+              "kind": "text.label",
+              "props": {
+                "fontSize": 13,
+                "color": "#666666"
+              },
+              "content": "San Francisco"
+            }
+          ]
+        },
+        {
+          "type": "container",
+          "direction": "col",
+          "gap": 4,
+          "children": [
+            {
+              "type": "leaf",
+              "kind": "number.metric",
+              "props": {
+                "fontSize": 48,
+                "color": "#000000",
+                "align": "left"
+              },
+              "content": "72°"
+            },
+            {
+              "type": "leaf",
+              "kind": "text.label",
+              "props": {
+                "fontSize": 15,
+                "color": "#666666"
+              },
+              "content": "Partly Cloudy"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

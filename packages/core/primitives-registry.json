@@ -1,0 +1,80 @@
+{
+  "primitives": {
+    "Title": {
+      "id": "Title",
+      "kind": "text.title",
+      "props": {
+        "fontSize": { "type": "number", "unit": "px", "default": 24 },
+        "color": { "type": "color", "default": "#000000" },
+        "align": { "type": "enum", "values": ["left", "center", "right", "start", "end"], "default": "left" }
+      },
+      "sml": { "S": true, "M": true, "L": true },
+      "flexHints": {
+        "fixed": false,
+        "defaultFlex": 0,
+        "defaultGap": 8
+      }
+    },
+    "Metric": {
+      "id": "Metric",
+      "kind": "number.metric",
+      "props": {
+        "fontSize": { "type": "number", "unit": "px", "default": 32 },
+        "color": { "type": "color", "default": "#000000" },
+        "align": { "type": "enum", "values": ["left", "center", "right", "start", "end"], "default": "left" }
+      },
+      "sml": { "S": true, "M": true, "L": true },
+      "flexHints": {
+        "fixed": false,
+        "defaultFlex": 0,
+        "defaultGap": 8
+      }
+    },
+    "Label": {
+      "id": "Label",
+      "kind": "text.label",
+      "props": {
+        "fontSize": { "type": "number", "unit": "px", "default": 13 },
+        "color": { "type": "color", "default": "#666666" },
+        "align": { "type": "enum", "values": ["left", "center", "right", "start", "end"], "default": "left" }
+      },
+      "sml": { "S": true, "M": true, "L": true },
+      "flexHints": {
+        "fixed": false,
+        "defaultFlex": 0,
+        "defaultGap": 4
+      }
+    },
+    "Icon": {
+      "id": "Icon",
+      "kind": "media.icon",
+      "props": {
+        "size": { "type": "number", "unit": "px", "default": 20 },
+        "color": { "type": "color", "default": "#000000" },
+        "name": { "type": "string", "required": true }
+      },
+      "sml": { "S": true, "M": true, "L": true },
+      "flexHints": {
+        "fixed": true,
+        "defaultFlex": 0,
+        "defaultGap": 8
+      }
+    }
+  },
+  "containers": {
+    "WidgetShell": {
+      "id": "WidgetShell",
+      "props": {
+        "size": { "type": "enum", "values": ["S", "M", "L"], "default": "M" },
+        "theme": { "type": "enum", "values": ["light", "dark"], "default": "light" }
+      },
+      "layout": {
+        "type": "container",
+        "display": "flex",
+        "borderRadius": 20,
+        "padding": 16,
+        "overflow": "hidden"
+      }
+    }
+  }
+}

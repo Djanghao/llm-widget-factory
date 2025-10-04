@@ -1,0 +1,112 @@
+{
+  "widget": {
+    "width": 338,
+    "height": 158,
+    "backgroundColor": "#f2f2f7",
+    "borderRadius": 20,
+    "padding": 16,
+    "root": {
+      "type": "container",
+      "direction": "col",
+      "gap": 16,
+      "children": [
+        {
+          "type": "leaf",
+          "kind": "text.title",
+          "props": {
+            "fontSize": 17,
+            "color": "#000000"
+          },
+          "content": "Activity"
+        },
+        {
+          "type": "container",
+          "direction": "row",
+          "gap": 24,
+          "alignMain": "between",
+          "flex": 1,
+          "children": [
+            {
+              "type": "container",
+              "direction": "col",
+              "gap": 4,
+              "flex": 1,
+              "children": [
+                {
+                  "type": "leaf",
+                  "kind": "number.metric",
+                  "props": {
+                    "fontSize": 32,
+                    "color": "#FF3B30"
+                  },
+                  "content": "8,547"
+                },
+                {
+                  "type": "leaf",
+                  "kind": "text.label",
+                  "props": {
+                    "fontSize": 13,
+                    "color": "#666666"
+                  },
+                  "content": "Steps"
+                }
+              ]
+            },
+            {
+              "type": "container",
+              "direction": "col",
+              "gap": 4,
+              "flex": 1,
+              "children": [
+                {
+                  "type": "leaf",
+                  "kind": "number.metric",
+                  "props": {
+                    "fontSize": 32,
+                    "color": "#34C759"
+                  },
+                  "content": "247"
+                },
+                {
+                  "type": "leaf",
+                  "kind": "text.label",
+                  "props": {
+                    "fontSize": 13,
+                    "color": "#666666"
+                  },
+                  "content": "Calories"
+                }
+              ]
+            },
+            {
+              "type": "container",
+              "direction": "col",
+              "gap": 4,
+              "flex": 1,
+              "children": [
+                {
+                  "type": "leaf",
+                  "kind": "number.metric",
+                  "props": {
+                    "fontSize": 32,
+                    "color": "#007AFF"
+                  },
+                  "content": "4.2"
+                },
+                {
+                  "type": "leaf",
+                  "kind": "text.label",
+                  "props": {
+                    "fontSize": 13,
+                    "color": "#666666"
+                  },
+                  "content": "km"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

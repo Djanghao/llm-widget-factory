@@ -1,0 +1,153 @@
+{
+  "widget": {
+    "width": 338,
+    "height": 354,
+    "backgroundColor": "#f2f2f7",
+    "borderRadius": 20,
+    "padding": 16,
+    "root": {
+      "type": "container",
+      "direction": "col",
+      "gap": 16,
+      "children": [
+        {
+          "type": "container",
+          "direction": "row",
+          "gap": 8,
+          "alignCross": "center",
+          "alignMain": "between",
+          "children": [
+            {
+              "type": "leaf",
+              "kind": "text.title",
+              "props": {
+                "fontSize": 20,
+                "color": "#000000"
+              },
+              "content": "Revenue Dashboard"
+            },
+            {
+              "type": "leaf",
+              "kind": "media.icon",
+              "props": {
+                "size": 20,
+                "color": "#34C759",
+                "name": "checkmark.circle.fill"
+              }
+            }
+          ]
+        },
+        {
+          "type": "container",
+          "direction": "col",
+          "gap": 8,
+          "flex": 1,
+          "children": [
+            {
+              "type": "container",
+              "direction": "row",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "leaf",
+                  "kind": "media.icon",
+                  "props": {
+                    "size": 20,
+                    "color": "#FF9500",
+                    "name": "flame.fill"
+                  }
+                },
+                {
+                  "type": "container",
+                  "direction": "col",
+                  "gap": 2,
+                  "flex": 1,
+                  "children": [
+                    {
+                      "type": "leaf",
+                      "kind": "text.label",
+                      "props": {
+                        "fontSize": 13,
+                        "color": "#666666"
+                      },
+                      "content": "Total Revenue"
+                    },
+                    {
+                      "type": "leaf",
+                      "kind": "number.metric",
+                      "props": {
+                        "fontSize": 28,
+                        "color": "#000000"
+                      },
+                      "content": "$124,580"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "container",
+              "direction": "row",
+              "gap": 16,
+              "alignMain": "between",
+              "children": [
+                {
+                  "type": "container",
+                  "direction": "col",
+                  "gap": 4,
+                  "flex": 1,
+                  "children": [
+                    {
+                      "type": "leaf",
+                      "kind": "number.metric",
+                      "props": {
+                        "fontSize": 24,
+                        "color": "#34C759"
+                      },
+                      "content": "+18.2%"
+                    },
+                    {
+                      "type": "leaf",
+                      "kind": "text.label",
+                      "props": {
+                        "fontSize": 12,
+                        "color": "#666666"
+                      },
+                      "content": "vs last month"
+                    }
+                  ]
+                },
+                {
+                  "type": "container",
+                  "direction": "col",
+                  "gap": 4,
+                  "flex": 1,
+                  "children": [
+                    {
+                      "type": "leaf",
+                      "kind": "number.metric",
+                      "props": {
+                        "fontSize": 24,
+                        "color": "#007AFF"
+                      },
+                      "content": "2,847"
+                    },
+                    {
+                      "type": "leaf",
+                      "kind": "text.label",
+                      "props": {
+                        "fontSize": 12,
+                        "color": "#666666"
+                      },
+                      "content": "Transactions"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

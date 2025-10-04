@@ -1,0 +1,12 @@
+{
+  "name": "@widget-factory/core",
+  "version": "0.3.0",
+  "type": "module",
+  "main": "./src/index.jsx",
+  "exports": {
+    ".": "./src/index.jsx"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0"
+  }
+}
