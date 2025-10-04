@@ -16,6 +16,7 @@ import mapMediumDark from './examples/map-medium-dark.json';
 function App() {
   const [selectedExample, setSelectedExample] = useState('weatherSmallLight');
   const [editedSpec, setEditedSpec] = useState('');
+  const [showComponentsModal, setShowComponentsModal] = useState(false);
 
   const examples = {
     weatherSmallLight: { name: 'Weather S-Light', spec: weatherSmallLight },
@@ -60,45 +61,70 @@ function App() {
 
   return (
     <div style={{
-      minHeight: '100vh',
+      height: '100vh',
       backgroundColor: '#1c1c1e',
-      padding: '32px 48px',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      padding: '24px 32px',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden'
     }}>
-      <header style={{ marginBottom: 40 }}>
-        <h1 style={{ fontSize: 48, fontWeight: 700, margin: 0, color: '#f5f5f7', letterSpacing: '-0.5px' }}>
-          Widget Factory
-        </h1>
-        <p style={{ fontSize: 17, color: '#98989d', marginTop: 8, fontWeight: 400 }}>
-          WidgetSpec → JSX Compiler
-        </p>
+      <header style={{ marginBottom: 20, flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <h1 style={{ fontSize: 36, fontWeight: 700, margin: 0, color: '#f5f5f7', letterSpacing: '-0.5px' }}>
+              Widget Factory
+            </h1>
+            <p style={{ fontSize: 15, color: '#98989d', marginTop: 4, fontWeight: 400 }}>
+              WidgetSpec → JSX Compiler
+            </p>
+          </div>
+          <button
+            onClick={() => setShowComponentsModal(true)}
+            style={{
+              padding: '10px 20px',
+              fontSize: 14,
+              fontWeight: 500,
+              backgroundColor: '#2c2c2e',
+              color: '#f5f5f7',
+              border: '1px solid #3a3a3c',
+              borderRadius: 8,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#3a3a3c'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#2c2c2e'}
+          >
+            📚 Component Library
+          </button>
+        </div>
       </header>
 
       {/* Presets */}
-      <div style={{ marginBottom: 32 }}>
+      <div style={{ marginBottom: 16, flexShrink: 0 }}>
         <h3 style={{
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: 600,
-          marginBottom: 16,
+          marginBottom: 12,
           color: '#6e6e73',
           textTransform: 'uppercase',
           letterSpacing: '0.5px'
         }}>
           Presets
         </h3>
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {Object.entries(examples).map(([key, { name }]) => (
             <button
               key={key}
               onClick={() => handleExampleChange(key)}
               style={{
-                padding: '10px 18px',
-                fontSize: 14,
+                padding: '8px 14px',
+                fontSize: 13,
                 fontWeight: 500,
                 backgroundColor: selectedExample === key ? '#007AFF' : '#2c2c2e',
                 color: '#f5f5f7',
                 border: selectedExample === key ? 'none' : '1px solid #3a3a3c',
-                borderRadius: 8,
+                borderRadius: 6,
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 boxShadow: selectedExample === key ? '0 0 0 3px rgba(0, 122, 255, 0.2)' : 'none'
@@ -111,9 +137,9 @@ function App() {
       </div>
 
       {/* Main Layout: Spec → JSX → Preview */}
-      <div style={{ display: 'grid', gridTemplateColumns: '3fr 4.5fr 2.8fr', gap: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '3fr 4.5fr 2.8fr', gap: 16, minWidth: 0, flex: 1, minHeight: 0, paddingBottom: 24 }}>
           {/* 1. WidgetSpec */}
-          <div>
+          <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column' }}>
             <h2 style={{
               fontSize: 16,
               fontWeight: 600,
@@ -121,7 +147,8 @@ function App() {
               color: '#f5f5f7',
               display: 'flex',
               alignItems: 'center',
-              gap: 8
+              gap: 8,
+              flexShrink: 0
             }}>
               <span style={{
                 width: 6,
@@ -137,7 +164,8 @@ function App() {
               spellCheck={false}
               style={{
                 width: '100%',
-                height: 'calc(100vh - 300px)',
+                flex: 1,
+                minHeight: 0,
                 padding: 16,
                 fontSize: 13,
                 fontFamily: 'Monaco, Consolas, monospace',
@@ -158,7 +186,7 @@ function App() {
           </div>
 
           {/* 2. Generated JSX */}
-          <div>
+          <div style={{ minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
             <h2 style={{
               fontSize: 16,
               fontWeight: 600,
@@ -166,7 +194,8 @@ function App() {
               color: '#f5f5f7',
               display: 'flex',
               alignItems: 'center',
-              gap: 8
+              gap: 8,
+              flexShrink: 0
             }}>
               <span style={{
                 width: 6,
@@ -177,21 +206,33 @@ function App() {
               Generated widget.jsx
             </h2>
             <div style={{
-              height: 'calc(100vh - 300px)',
+              flex: 1,
+              minHeight: 0,
               borderRadius: 10,
-              overflow: 'hidden',
-              border: '1px solid #3a3a3c'
+              border: '1px solid #3a3a3c',
+              backgroundColor: '#1e1e1e',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden'
             }}>
               <SyntaxHighlighter
                 language="jsx"
                 style={vscDarkPlus}
                 showLineNumbers
+                wrapLongLines={false}
                 customStyle={{
                   margin: 0,
                   fontSize: 13,
                   borderRadius: 10,
-                  height: '100%',
+                  whiteSpace: 'pre',
+                  flex: 1,
+                  minHeight: 0,
                   overflow: 'auto'
+                }}
+                codeTagProps={{
+                  style: {
+                    whiteSpace: 'pre'
+                  }
                 }}
               >
                 {generatedCode}
@@ -200,7 +241,7 @@ function App() {
           </div>
 
           {/* 3. Preview */}
-          <div>
+          <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column' }}>
             <h2 style={{
               fontSize: 16,
               fontWeight: 600,
@@ -208,7 +249,8 @@ function App() {
               color: '#f5f5f7',
               display: 'flex',
               alignItems: 'center',
-              gap: 8
+              gap: 8,
+              flexShrink: 0
             }}>
               <span style={{
                 width: 6,
@@ -225,7 +267,8 @@ function App() {
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              height: 'calc(100vh - 300px)',
+              flex: 1,
+              minHeight: 0,
               boxSizing: 'border-box',
               border: '1px solid #3a3a3c'
             }}>
@@ -234,58 +277,221 @@ function App() {
           </div>
         </div>
 
-      {/* Available Components Section */}
-      <div style={{ marginTop: 48, paddingTop: 32, borderTop: '1px solid #3a3a3c' }}>
-        <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24, color: '#f5f5f7' }}>
-          Available Components
-        </h2>
+      {/* Component Library Modal */}
+      {showComponentsModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}
+          onClick={() => setShowComponentsModal(false)}
+        >
+          <div
+            style={{
+              backgroundColor: '#1c1c1e',
+              borderRadius: 16,
+              padding: 32,
+              maxWidth: '900px',
+              maxHeight: '80vh',
+              overflow: 'auto',
+              border: '1px solid #3a3a3c'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+              <h2 style={{ fontSize: 28, fontWeight: 700, margin: 0, color: '#f5f5f7' }}>
+                Component Library
+              </h2>
+              <button
+                onClick={() => setShowComponentsModal(false)}
+                style={{
+                  backgroundColor: '#2c2c2e',
+                  border: '1px solid #3a3a3c',
+                  color: '#f5f5f7',
+                  width: 32,
+                  height: 32,
+                  borderRadius: 8,
+                  cursor: 'pointer',
+                  fontSize: 18,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                ✕
+              </button>
+            </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
-          {/* Text Components */}
-          <div style={{ backgroundColor: '#2c2c2e', borderRadius: 12, padding: 20 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: '#f5f5f7' }}>
-              Text
-            </h3>
-            <div style={{ fontSize: 14, color: '#98989d', lineHeight: 1.8 }}>
-              <div><code style={{ color: '#FF9500' }}>Title</code> - Main headings</div>
-              <div><code style={{ color: '#FF9500' }}>Metric</code> - Numbers with tabular figures</div>
-              <div><code style={{ color: '#FF9500' }}>Label</code> - Secondary text</div>
-            </div>
-            <div style={{ marginTop: 16, fontSize: 12, color: '#6e6e73' }}>
-              Props: fontSize, color, align
-            </div>
-          </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 20 }}>
+              {/* Text Components */}
+              <div style={{ backgroundColor: '#2c2c2e', borderRadius: 12, padding: 24 }}>
+                <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f5f5f7' }}>
+                  📝 Text Components
+                </h3>
+                <div style={{ display: 'grid', gap: 16 }}>
+                  <div>
+                    <div style={{ fontSize: 14, color: '#f5f5f7', fontWeight: 600, marginBottom: 8 }}>
+                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>text.title</code> - Title/Heading
+                    </div>
+                    <div style={{ fontSize: 13, color: '#98989d', marginBottom: 8 }}>
+                      Main headings and important text
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace' }}>
+                      Props: fontSize (default: 18), color, fontWeight (default: 400), align
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 14, color: '#f5f5f7', fontWeight: 600, marginBottom: 8 }}>
+                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>text.label</code> - Label
+                    </div>
+                    <div style={{ fontSize: 13, color: '#98989d', marginBottom: 8 }}>
+                      Secondary text and labels
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace' }}>
+                      Props: fontSize (default: 13), color (#666666), fontWeight (default: 400), align
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 14, color: '#f5f5f7', fontWeight: 600, marginBottom: 8 }}>
+                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>number.metric</code> - Metric
+                    </div>
+                    <div style={{ fontSize: 13, color: '#98989d', marginBottom: 8 }}>
+                      Numbers with tabular figures
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace' }}>
+                      Props: fontSize (default: 32), color, fontWeight (default: 600), align
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-          {/* Media Components */}
-          <div style={{ backgroundColor: '#2c2c2e', borderRadius: 12, padding: 20 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: '#f5f5f7' }}>
-              Media
-            </h3>
-            <div style={{ fontSize: 14, color: '#98989d', lineHeight: 1.8 }}>
-              <div><code style={{ color: '#FF9500' }}>Icon</code> - SF Symbols icons</div>
-            </div>
-            <div style={{ marginTop: 16, fontSize: 12, color: '#6e6e73' }}>
-              Props: size, color, name
-              <div style={{ marginTop: 8 }}>
-                Available icons: heart.fill, star.fill, bolt.fill, calendar, checkmark.circle.fill
+              {/* Media Components */}
+              <div style={{ backgroundColor: '#2c2c2e', borderRadius: 12, padding: 24 }}>
+                <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f5f5f7' }}>
+                  🖼️ Media Components
+                </h3>
+                <div style={{ display: 'grid', gap: 16 }}>
+                  <div>
+                    <div style={{ fontSize: 14, color: '#f5f5f7', fontWeight: 600, marginBottom: 8 }}>
+                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>media.icon</code> - Icon
+                    </div>
+                    <div style={{ fontSize: 13, color: '#98989d', marginBottom: 8 }}>
+                      SF Symbols style icons
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace', marginBottom: 8 }}>
+                      Props: size (default: 20), color, name (required)
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6e6e73' }}>
+                      Available: heart.fill, star.fill, circle.fill, checkmark.circle.fill, cloud.sun.fill, flame.fill, bolt.fill, calendar
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 14, color: '#f5f5f7', fontWeight: 600, marginBottom: 8 }}>
+                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>media.image</code> - Image
+                    </div>
+                    <div style={{ fontSize: 13, color: '#98989d', marginBottom: 8 }}>
+                      Display images from URLs
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace' }}>
+                      Props: width (required), height (required), url (required), borderRadius (default: 0)
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 14, color: '#f5f5f7', fontWeight: 600, marginBottom: 8 }}>
+                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>media.map</code> - Map Image
+                    </div>
+                    <div style={{ fontSize: 13, color: '#98989d', marginBottom: 8 }}>
+                      Display map images
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace' }}>
+                      Props: width (required), height (required), url (required)
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 14, color: '#f5f5f7', fontWeight: 600, marginBottom: 8 }}>
+                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>media.applogo</code> - App Logo
+                    </div>
+                    <div style={{ fontSize: 13, color: '#98989d', marginBottom: 8 }}>
+                      App icon with first letter
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace' }}>
+                      Props: size (default: 20), name (required), backgroundColor (default: #007AFF)
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Chart Components */}
+              <div style={{ backgroundColor: '#2c2c2e', borderRadius: 12, padding: 24 }}>
+                <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f5f5f7' }}>
+                  📊 Chart Components
+                </h3>
+                <div style={{ display: 'grid', gap: 16 }}>
+                  <div>
+                    <div style={{ fontSize: 14, color: '#f5f5f7', fontWeight: 600, marginBottom: 8 }}>
+                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>chart.sparkline</code> - Sparkline
+                    </div>
+                    <div style={{ fontSize: 13, color: '#98989d', marginBottom: 8 }}>
+                      Small line chart for trends
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace' }}>
+                      Props: width (default: 80), height (default: 40), color (default: #34C759), data (required array)
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Control Components */}
+              <div style={{ backgroundColor: '#2c2c2e', borderRadius: 12, padding: 24 }}>
+                <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f5f5f7' }}>
+                  🎛️ Control Components
+                </h3>
+                <div style={{ display: 'grid', gap: 16 }}>
+                  <div>
+                    <div style={{ fontSize: 14, color: '#f5f5f7', fontWeight: 600, marginBottom: 8 }}>
+                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>control.checkbox</code> - Checkbox
+                    </div>
+                    <div style={{ fontSize: 13, color: '#98989d', marginBottom: 8 }}>
+                      Circular checkbox
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace' }}>
+                      Props: size (default: 20), checked (default: false), color (default: #FF3B30)
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Layout */}
+              <div style={{ backgroundColor: '#2c2c2e', borderRadius: 12, padding: 24 }}>
+                <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f5f5f7' }}>
+                  📐 Layout
+                </h3>
+                <div style={{ display: 'grid', gap: 16 }}>
+                  <div>
+                    <div style={{ fontSize: 14, color: '#f5f5f7', fontWeight: 600, marginBottom: 8 }}>
+                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>container</code> - Flex Container
+                    </div>
+                    <div style={{ fontSize: 13, color: '#98989d', marginBottom: 8 }}>
+                      Flexbox layout container
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace' }}>
+                      Props: direction (row|col), gap, padding, alignMain (start|end|center|between), alignCross (start|end|center), flex, backgroundColor
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-
-          {/* Layout */}
-          <div style={{ backgroundColor: '#2c2c2e', borderRadius: 12, padding: 20 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: '#f5f5f7' }}>
-              Layout
-            </h3>
-            <div style={{ fontSize: 14, color: '#98989d', lineHeight: 1.8 }}>
-              <div><code style={{ color: '#FF9500' }}>container</code> - Flex layout</div>
-            </div>
-            <div style={{ marginTop: 16, fontSize: 12, color: '#6e6e73' }}>
-              Props: direction (row|col), gap, alignMain, alignCross, flex
-            </div>
-          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
