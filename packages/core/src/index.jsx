@@ -6,5 +6,5 @@ export { AppLogo } from './AppLogo.jsx';
 export { MapImage } from './MapImage.jsx';
 export { Image } from './Image.jsx';
 export { Checkbox } from './Checkbox.jsx';
-export { compileWidgetSpec } from './compiler.js';
+export { compileWidgetSpec, compileWidgetSpecWithMap } from './compiler.js';
 export { renderWidgetFromSpec } from './runtime-renderer.jsx';

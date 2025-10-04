@@ -1,11 +1,15 @@
 import registry from '../primitives-registry.json' assert { type: 'json' };
 
-export function compileWidgetSpec(widgetSpec) {
+function buildCodeAndMap(widgetSpec) {
   const imports = new Set();
   imports.add("import React from 'react';");
   imports.add("import { WidgetShell } from '@widget-factory/core';");
 
-  function renderNode(node, depth = 0) {
+  const map = {};
+  const lines = [];
+  const write = (line) => { lines.push(line); };
+
+  function renderNode(node, depth = 0, path = '0') {
     const indent = '  '.repeat(depth);
 
     if (node.type === 'container') {
@@ -19,28 +23,21 @@ export function compileWidgetSpec(widgetSpec) {
       if (flex !== undefined) styles.push(`flex: ${flex}`);
       if (backgroundColor) styles.push(`backgroundColor: '${backgroundColor}'`);
       if (alignMain) {
-        const alignMap = {
-          start: 'flex-start',
-          end: 'flex-end',
-          center: 'center',
-          between: 'space-between'
-        };
+        const alignMap = { start: 'flex-start', end: 'flex-end', center: 'center', between: 'space-between' };
         styles.push(`justifyContent: '${alignMap[alignMain] || alignMain}'`);
       }
       if (alignCross) {
-        const alignMap = {
-          start: 'flex-start',
-          end: 'flex-end',
-          center: 'center'
-        };
+        const alignMap = { start: 'flex-start', end: 'flex-end', center: 'center' };
         styles.push(`alignItems: '${alignMap[alignCross] || alignCross}'`);
       }
 
-      const childrenCode = children.map(child => renderNode(child, depth + 1)).join('\n');
-
-      return `${indent}<div style={{ ${styles.join(', ')} }}>
-${childrenCode}
-${indent}</div>`;
+      const startLine = lines.length + 1;
+      write(`${indent}<div style={{ ${styles.join(', ')} }}>`);
+      children.forEach((child, idx) => renderNode(child, depth + 1, `${path}.${idx}`));
+      write(`${indent}</div>`);
+      const endLine = lines.length;
+      map[path] = { startLine, endLine };
+      return;
     }
 
     if (node.type === 'leaf') {
@@ -62,9 +59,7 @@ ${indent}</div>`;
       const mergedProps = {};
       if (primitive.props) {
         for (const [key, propDef] of Object.entries(primitive.props)) {
-          if (propDef.default !== undefined) {
-            mergedProps[key] = propDef.default;
-          }
+          if (propDef.default !== undefined) mergedProps[key] = propDef.default;
         }
       }
       Object.assign(mergedProps, props);
@@ -72,67 +67,63 @@ ${indent}</div>`;
       const propsCode = [];
       for (const [key, value] of Object.entries(mergedProps)) {
         if (componentName === 'Icon' && key === 'name') continue;
-        if (typeof value === 'string') {
-          propsCode.push(`${key}="${value}"`);
-        } else {
-          propsCode.push(`${key}={${JSON.stringify(value)}}`);
-        }
+        if (typeof value === 'string') propsCode.push(`${key}="${value}"`);
+        else propsCode.push(`${key}={${JSON.stringify(value)}}`);
       }
+      if (flex !== undefined) propsCode.push(`style={{ flex: ${flex} }}`);
 
-      let styleCode = '';
-      if (flex !== undefined) {
-        propsCode.push(`style={{ flex: ${flex} }}`);
-      }
-
-      let children = '';
+      let childrenStr = '';
       if (componentName === 'Icon' && props.name) {
         const iconName = toPascalCase(props.name);
-        children = `<${iconName} />`;
+        childrenStr = `<${iconName} />`;
       } else if (content) {
-        children = content;
+        childrenStr = content;
       }
 
       const propsStr = propsCode.length > 0 ? ' ' + propsCode.join(' ') : '';
-
-      if (children) {
-        return `${indent}<${componentName}${propsStr}>${children}</${componentName}>`;
-      } else {
-        return `${indent}<${componentName}${propsStr} />`;
-      }
+      const startLine = lines.length + 1;
+      if (childrenStr) write(`${indent}<${componentName}${propsStr}>${childrenStr}</${componentName}>`);
+      else write(`${indent}<${componentName}${propsStr} />`);
+      const endLine = lines.length;
+      map[path] = { startLine, endLine };
+      return;
     }
-
-    return '';
   }
 
-  if (widgetSpec.widget?.root) {
-    const { backgroundColor, borderRadius, padding } = widgetSpec.widget;
+  if (!widgetSpec.widget?.root) {
+    throw new Error('Invalid widget spec: missing widget.root');
+  }
 
-    const rootContent = renderNode(widgetSpec.widget.root, 2);
+  renderNode(widgetSpec.widget.root, 2, '0');
 
-    const importsCode = Array.from(imports).join('\n');
+  const importsCode = Array.from(imports).join('\n');
+  const { backgroundColor, borderRadius, padding } = widgetSpec.widget;
+  const shellProps = [];
+  if (backgroundColor) shellProps.push(`backgroundColor="${backgroundColor}"`);
+  if (borderRadius !== undefined) shellProps.push(`borderRadius={${borderRadius}}`);
+  if (padding !== undefined) shellProps.push(`padding={${padding}}`);
+  const shellPropsStr = shellProps.length > 0 ? ' ' + shellProps.join(' ') : '';
 
-    const shellProps = [];
-    if (backgroundColor) shellProps.push(`backgroundColor="${backgroundColor}"`);
-    if (borderRadius !== undefined) shellProps.push(`borderRadius={${borderRadius}}`);
-    if (padding !== undefined) shellProps.push(`padding={${padding}}`);
+  const prefix = `${importsCode}\n\nexport default function Widget() {\n  return (\n    <WidgetShell${shellPropsStr}>\n`;
+  const suffix = `\n    </WidgetShell>\n  );\n}\n`;
+  const prefixLineCount = prefix.split('\n').length - 1;
 
-    const shellPropsStr = shellProps.length > 0 ? ' ' + shellProps.join(' ') : '';
+  const adjustedMap = {};
+  for (const [p, r] of Object.entries(map)) {
+    adjustedMap[p] = { startLine: r.startLine + prefixLineCount, endLine: r.endLine + prefixLineCount };
+  }
 
-    const code = `${importsCode}
-
-export default function Widget() {
-  return (
-    <WidgetShell${shellPropsStr}>
-${rootContent}
-    </WidgetShell>
-  );
+  const code = prefix + lines.join('\n') + suffix;
+  return { code, map: adjustedMap };
 }
-`;
 
-    return code;
-  }
+export function compileWidgetSpec(widgetSpec) {
+  const { code } = buildCodeAndMap(widgetSpec);
+  return code;
+}
 
-  throw new Error('Invalid widget spec: missing widget.root');
+export function compileWidgetSpecWithMap(widgetSpec) {
+  return buildCodeAndMap(widgetSpec);
 }
 
 function toPascalCase(str) {
@@ -141,3 +132,4 @@ function toPascalCase(str) {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join('');
 }
+

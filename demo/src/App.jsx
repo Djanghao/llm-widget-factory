@@ -1,9 +1,11 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { compileWidgetSpec, renderWidgetFromSpec } from '@widget-factory/core';
+import { compileWidgetSpecWithMap, renderWidgetFromSpec } from '@widget-factory/core';
 import TreeView from './TreeView.jsx';
 import HighlightOverlay from './HighlightOverlay.jsx';
+import SpecHighlightOverlay from './SpecHighlightOverlay.jsx';
+import buildSpecPathLineMap from './specLocator.js';
 import weatherSmallLight from './examples/weather-small-light.json';
 import weatherMediumDark from './examples/weather-medium-dark.json';
 import calendarSmallLight from './examples/calendar-small-light.json';
@@ -24,6 +26,11 @@ function App() {
   const [hoverPath, setHoverPath] = useState(null);
   const previewContainerRef = useRef(null);
   const treeContainerRef = useRef(null);
+  const specTextareaRef = useRef(null);
+  const jsxScrollRef = useRef(null);
+  const [jsxLineMap, setJsxLineMap] = useState({});
+  const [specLineMap, setSpecLineMap] = useState({});
+  const [jsxHL, setJsxHL] = useState(null);
   const handleSelectNode = (path) => setSelectedPath(prev => (prev === path ? null : path));
   const handleHoverNode = (path) => {
     if (!inspectMode) return;
@@ -58,21 +65,34 @@ function App() {
 
   const currentSpec = editedSpec || JSON.stringify(currentExample.spec, null, 2);
 
-  const { generatedCode, PreviewWidget, treeRoot } = useMemo(() => {
+  const { generatedCode, PreviewWidget, treeRoot, _jsxMap } = useMemo(() => {
     try {
       const spec = editedSpec ? JSON.parse(editedSpec) : currentExample.spec;
-      const code = compileWidgetSpec(spec);
+      const { code, map } = compileWidgetSpecWithMap(spec);
       const WidgetComponent = renderWidgetFromSpec(spec, { inspect: inspectMode });
-
-      return { generatedCode: code, PreviewWidget: WidgetComponent, treeRoot: spec?.widget?.root };
+      return { generatedCode: code, PreviewWidget: WidgetComponent, treeRoot: spec?.widget?.root, _jsxMap: map };
     } catch (error) {
       return {
         generatedCode: `// Error: ${error.message}`,
         PreviewWidget: () => <div style={{ color: '#ff453a', fontSize: 13 }}>Error: {error.message}</div>,
-        treeRoot: null
+        treeRoot: null,
+        _jsxMap: {}
       };
     }
   }, [currentExample, editedSpec, inspectMode]);
+
+  useEffect(() => {
+    setJsxLineMap(_jsxMap || {});
+  }, [_jsxMap]);
+
+  useEffect(() => {
+    const text = currentSpec;
+    if (typeof text === 'string') {
+      setSpecLineMap(buildSpecPathLineMap(text));
+    } else {
+      setSpecLineMap({});
+    }
+  }, [currentSpec]);
 
   const handleSpecChange = (value) => {
     setEditedSpec(value);
@@ -83,6 +103,50 @@ function App() {
     setEditedSpec('');
     setSelectedPath(null);
   };
+
+  // Sync highlights in code/spec when hover/selection changes
+  useEffect(() => {
+    if (!inspectMode) {
+      setJsxHL(null);
+      return;
+    }
+    const active = hoverPath || selectedPath;
+    const range = active ? jsxLineMap[active] : null;
+    setJsxHL(range || null);
+    if (range && jsxScrollRef.current) {
+      const el = jsxScrollRef.current.querySelector(`[data-code-line="${range.startLine}"]`);
+      if (el) {
+        const container = jsxScrollRef.current;
+        const top = el.offsetTop - container.clientHeight * 0.3;
+        container.scrollTo({ top: top < 0 ? 0 : top, behavior: 'smooth' });
+      }
+    }
+
+    if (specTextareaRef.current) {
+      const textArea = specTextareaRef.current;
+      if (active && specLineMap[active]) {
+        const { start, end, lineStart } = specLineMap[active];
+        try {
+          textArea.setSelectionRange(start, end);
+          const cs = window.getComputedStyle(textArea);
+          const lineH = parseFloat(cs.lineHeight) || 20;
+          const top = Math.max(0, (lineStart - 2) * lineH);
+          textArea.scrollTo({ top, behavior: 'smooth' });
+        } catch {}
+      } else {
+        try { textArea.setSelectionRange(0, 0); } catch {}
+      }
+    }
+  }, [hoverPath, selectedPath, inspectMode, jsxLineMap, specLineMap]);
+
+  // When selecting a node (click), focus the spec textarea to reveal selection highlight
+  useEffect(() => {
+    if (!inspectMode) return;
+    if (!selectedPath) return;
+    const ta = specTextareaRef.current;
+    if (!ta) return;
+    try { ta.focus({ preventScroll: true }); } catch {}
+  }, [selectedPath, inspectMode]);
 
   return (
     <div style={{
@@ -215,31 +279,36 @@ function App() {
               }} />
               WidgetSpec
             </h2>
-            <textarea
-              value={currentSpec}
-              onChange={(e) => handleSpecChange(e.target.value)}
-              spellCheck={false}
-              style={{
-                width: '100%',
-                flex: 1,
-                minHeight: 0,
-                padding: 16,
-                fontSize: 13,
-                fontFamily: 'Monaco, Consolas, monospace',
-                backgroundColor: '#0d0d0d',
-                color: '#f5f5f7',
-                border: '1px solid #3a3a3c',
-                borderRadius: 10,
-                resize: 'none',
-                boxSizing: 'border-box',
-                overflowY: 'auto',
-                lineHeight: 1.6,
-                outline: 'none',
-                transition: 'border-color 0.2s ease'
-              }}
-              onFocus={(e) => e.target.style.borderColor = '#007AFF'}
-              onBlur={(e) => e.target.style.borderColor = '#3a3a3c'}
-            />
+            <div style={{ position: 'relative', flex: 1, minHeight: 0 }}>
+              <textarea
+                value={currentSpec}
+                onChange={(e) => handleSpecChange(e.target.value)}
+                spellCheck={false}
+                ref={specTextareaRef}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  padding: 16,
+                  fontSize: 13,
+                  fontFamily: 'Monaco, Consolas, monospace',
+                  backgroundColor: '#0d0d0d',
+                  color: '#f5f5f7',
+                  border: '1px solid #3a3a3c',
+                  borderRadius: 10,
+                  resize: 'none',
+                  boxSizing: 'border-box',
+                  overflowY: 'auto',
+                  lineHeight: 1.6,
+                  outline: 'none',
+                  transition: 'border-color 0.2s ease'
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#007AFF'}
+                onBlur={(e) => e.target.style.borderColor = '#3a3a3c'}
+              />
+              {inspectMode && (hoverPath || selectedPath) && specLineMap[(hoverPath || selectedPath)] && (
+                <SpecHighlightOverlay textareaRef={specTextareaRef} activeRange={specLineMap[(hoverPath || selectedPath)]} />
+              )}
+            </div>
           </div>
 
           
@@ -272,28 +341,38 @@ function App() {
               flexDirection: 'column',
               overflow: 'hidden'
             }}>
-              <SyntaxHighlighter
-                language="jsx"
-                style={vscDarkPlus}
-                showLineNumbers
-                wrapLongLines={false}
-                customStyle={{
-                  margin: 0,
-                  fontSize: 13,
-                  borderRadius: 10,
-                  whiteSpace: 'pre',
-                  flex: 1,
-                  minHeight: 0,
-                  overflow: 'auto'
-                }}
-                codeTagProps={{
-                  style: {
-                    whiteSpace: 'pre'
-                  }
-                }}
-              >
-                {generatedCode}
-              </SyntaxHighlighter>
+              <div ref={jsxScrollRef} style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+                <SyntaxHighlighter
+                  language="jsx"
+                  style={vscDarkPlus}
+                  showLineNumbers
+                  wrapLongLines={false}
+                  wrapLines
+                  lineProps={(lineNumber) => {
+                    const active = jsxHL;
+                    const activeLine = active && lineNumber >= active.startLine && lineNumber <= active.endLine;
+                    return {
+                      'data-code-line': lineNumber,
+                      style: activeLine ? { background: 'rgba(255, 214, 10, 0.18)' } : undefined
+                    };
+                  }}
+                  customStyle={{
+                    margin: 0,
+                    fontSize: 13,
+                    borderRadius: 10,
+                    whiteSpace: 'pre',
+                    minHeight: 0,
+                    overflow: 'visible'
+                  }}
+                  codeTagProps={{
+                    style: {
+                      whiteSpace: 'pre'
+                    }
+                  }}
+                >
+                  {generatedCode}
+                </SyntaxHighlighter>
+              </div>
             </div>
           </div>
 
@@ -364,6 +443,7 @@ function App() {
               selectedPath={selectedPath}
               onSelect={handleSelectNode}
               onHover={handleHoverNode}
+              hoverPath={hoverPath}
             />
           </div>
         </div>
