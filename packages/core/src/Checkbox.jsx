@@ -4,8 +4,7 @@ export function Checkbox({
   size = 20,
   checked = false,
   color = '#FF3B30',
-  style = {},
-  ...rest
+  style = {}
 }) {
   return (
     <div
@@ -20,7 +19,6 @@ export function Checkbox({
         justifyContent: 'center',
         ...style
       }}
-      {...rest}
     >
       {checked && (
         <svg

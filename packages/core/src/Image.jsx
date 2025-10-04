@@ -5,8 +5,7 @@ export function Image({
   height,
   url,
   borderRadius = 0,
-  style = {},
-  ...rest
+  style = {}
 }) {
   return (
     <img
@@ -21,7 +20,6 @@ export function Image({
         flexShrink: 0,
         ...style
       }}
-      {...rest}
     />
   );
 }

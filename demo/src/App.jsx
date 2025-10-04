@@ -19,10 +19,16 @@ function App() {
   const [selectedExample, setSelectedExample] = useState('weatherSmallLight');
   const [editedSpec, setEditedSpec] = useState('');
   const [showComponentsModal, setShowComponentsModal] = useState(false);
+  const [inspectMode, setInspectMode] = useState(false);
   const [selectedPath, setSelectedPath] = useState(null);
+  const [hoverPath, setHoverPath] = useState(null);
   const previewContainerRef = useRef(null);
   const treeContainerRef = useRef(null);
   const handleSelectNode = (path) => setSelectedPath(prev => (prev === path ? null : path));
+  const handleHoverNode = (path) => {
+    if (!inspectMode) return;
+    setHoverPath(path);
+  };
 
   useEffect(() => {
     const onDocClick = (e) => {
@@ -56,7 +62,7 @@ function App() {
     try {
       const spec = editedSpec ? JSON.parse(editedSpec) : currentExample.spec;
       const code = compileWidgetSpec(spec);
-      const WidgetComponent = renderWidgetFromSpec(spec);
+      const WidgetComponent = renderWidgetFromSpec(spec, { inspect: inspectMode });
 
       return { generatedCode: code, PreviewWidget: WidgetComponent, treeRoot: spec?.widget?.root };
     } catch (error) {
@@ -66,7 +72,7 @@ function App() {
         treeRoot: null
       };
     }
-  }, [currentExample, editedSpec]);
+  }, [currentExample, editedSpec, inspectMode]);
 
   const handleSpecChange = (value) => {
     setEditedSpec(value);
@@ -98,28 +104,49 @@ function App() {
               WidgetSpec → JSX Compiler
             </p>
           </div>
-          <button
-            onClick={() => setShowComponentsModal(true)}
-            style={{
-              padding: '10px 20px',
-              fontSize: 14,
-              fontWeight: 500,
-              backgroundColor: '#2c2c2e',
-              color: '#f5f5f7',
-              border: '1px solid #3a3a3c',
-              borderRadius: 8,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => e.target.style.backgroundColor = '#3a3a3c'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = '#2c2c2e'}
-          >
-            📚 Component Library
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <button
+              onClick={() => setInspectMode(v => !v)}
+              style={{
+                padding: '10px 14px',
+                fontSize: 13,
+                fontWeight: 600,
+                backgroundColor: inspectMode ? '#007AFF' : '#2c2c2e',
+                color: '#f5f5f7',
+                border: '1px solid #3a3a3c',
+                borderRadius: 8,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = inspectMode ? '#0a66d0' : '#3a3a3c'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = inspectMode ? '#007AFF' : '#2c2c2e'}
+              title="Toggle Inspect Overlay"
+            >
+              {inspectMode ? 'Inspect: On' : 'Inspect: Off'}
+            </button>
+            <button
+              onClick={() => setShowComponentsModal(true)}
+              style={{
+                padding: '10px 20px',
+                fontSize: 14,
+                fontWeight: 500,
+                backgroundColor: '#2c2c2e',
+                color: '#f5f5f7',
+                border: '1px solid #3a3a3c',
+                borderRadius: 8,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#3a3a3c'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = '#2c2c2e'}
+            >
+              Component Library
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* Presets */}
+      
       <div style={{ marginBottom: 16, flexShrink: 0 }}>
         <h3 style={{
           fontSize: 11,
@@ -155,7 +182,7 @@ function App() {
         </div>
       </div>
 
-      {/* Main Layout: Spec → JSX → Preview → Tree */}
+      
       <div style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
@@ -168,7 +195,7 @@ function App() {
           paddingBottom: 24,
           gridAutoRows: 'minmax(0, 1fr)'
         }}>
-          {/* 1. WidgetSpec */}
+          
           <div style={{ minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column', gridArea: 'spec' }}>
             <h2 style={{
               fontSize: 16,
@@ -215,7 +242,7 @@ function App() {
             />
           </div>
 
-          {/* 2. Generated JSX */}
+          
           <div style={{ minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column', gridArea: 'code' }}>
             <h2 style={{
               fontSize: 16,
@@ -270,7 +297,7 @@ function App() {
             </div>
           </div>
 
-          {/* 3. Preview */}
+          
           <div style={{ minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column', gridArea: 'preview' }}>
             <h2 style={{
               fontSize: 16,
@@ -305,11 +332,13 @@ function App() {
               overflow: 'auto'
             }} ref={previewContainerRef}>
               <PreviewWidget />
-              <HighlightOverlay containerRef={previewContainerRef} selectedPath={selectedPath} />
+              {inspectMode && (
+                <HighlightOverlay containerRef={previewContainerRef} selectedPath={selectedPath} hoverPath={hoverPath} />
+              )}
             </div>
           </div>
 
-          {/* 4. Tree */}
+          
           <div ref={treeContainerRef} style={{ minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column', gridArea: 'tree' }}>
             <h2 style={{
               fontSize: 16,
@@ -334,11 +363,12 @@ function App() {
               style={{ flex: 1, minHeight: 0 }}
               selectedPath={selectedPath}
               onSelect={handleSelectNode}
+              onHover={handleHoverNode}
             />
           </div>
         </div>
 
-      {/* Component Library Modal */}
+      
       {showComponentsModal && (
         <div
           style={{
@@ -381,21 +411,21 @@ function App() {
                   height: 32,
                   borderRadius: 8,
                   cursor: 'pointer',
-                  fontSize: 18,
+                  fontSize: 13,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}
               >
-                ✕
+                Close
               </button>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 20 }}>
-              {/* Text Components */}
+              
               <div style={{ backgroundColor: '#2c2c2e', borderRadius: 12, padding: 24 }}>
                 <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f5f5f7' }}>
-                  📝 Text Components
+                  Text Components
                 </h3>
                 <div style={{ display: 'grid', gap: 16 }}>
                   <div>
@@ -434,10 +464,10 @@ function App() {
                 </div>
               </div>
 
-              {/* Media Components */}
+              
               <div style={{ backgroundColor: '#2c2c2e', borderRadius: 12, padding: 24 }}>
                 <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f5f5f7' }}>
-                  🖼️ Media Components
+                  Media Components
                 </h3>
                 <div style={{ display: 'grid', gap: 16 }}>
                   <div>
@@ -490,10 +520,10 @@ function App() {
                 </div>
               </div>
 
-              {/* Chart Components */}
+              
               <div style={{ backgroundColor: '#2c2c2e', borderRadius: 12, padding: 24 }}>
                 <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f5f5f7' }}>
-                  📊 Chart Components
+                  Chart Components
                 </h3>
                 <div style={{ display: 'grid', gap: 16 }}>
                   <div>
@@ -510,10 +540,10 @@ function App() {
                 </div>
               </div>
 
-              {/* Control Components */}
+              
               <div style={{ backgroundColor: '#2c2c2e', borderRadius: 12, padding: 24 }}>
                 <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f5f5f7' }}>
-                  🎛️ Control Components
+                  Control Components
                 </h3>
                 <div style={{ display: 'grid', gap: 16 }}>
                   <div>
@@ -530,10 +560,10 @@ function App() {
                 </div>
               </div>
 
-              {/* Layout */}
+              
               <div style={{ backgroundColor: '#2c2c2e', borderRadius: 12, padding: 24 }}>
                 <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f5f5f7' }}>
-                  📐 Layout
+                  Layout
                 </h3>
                 <div style={{ display: 'grid', gap: 16 }}>
                   <div>

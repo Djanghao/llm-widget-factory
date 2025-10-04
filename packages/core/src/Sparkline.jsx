@@ -5,8 +5,7 @@ export function Sparkline({
   height = 40,
   color = '#34C759',
   data = [],
-  style = {},
-  ...rest
+  style = {}
 }) {
   const canvasRef = useRef(null);
 
@@ -17,20 +16,16 @@ export function Sparkline({
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
 
-    // Set canvas size with device pixel ratio
     canvas.width = width * dpr;
     canvas.height = height * dpr;
     ctx.scale(dpr, dpr);
 
-    // Clear canvas
     ctx.clearRect(0, 0, width, height);
 
-    // Calculate data range
     const max = Math.max(...data);
     const min = Math.min(...data);
     const range = max - min || 1;
 
-    // Draw line
     ctx.beginPath();
     ctx.strokeStyle = color;
     ctx.lineWidth = 2;
@@ -61,7 +56,6 @@ export function Sparkline({
         flexShrink: 0,
         ...style
       }}
-      {...rest}
     />
   );
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export function Icon({ size = 20, color = '#000000', children, style = {}, ...rest }) {
+export function Icon({ size = 20, color = '#000000', children, style = {} }) {
   return (
     <div
       style={{
@@ -13,7 +13,6 @@ export function Icon({ size = 20, color = '#000000', children, style = {}, ...re
         flexShrink: 0,
         ...style
       }}
-      {...rest}
     >
       {children}
     </div>

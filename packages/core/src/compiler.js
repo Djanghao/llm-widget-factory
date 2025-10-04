@@ -59,7 +59,6 @@ ${indent}</div>`;
         imports.add(`import { ${iconName} } from '@widget-factory/icons';`);
       }
 
-      // Merge default props from registry with provided props
       const mergedProps = {};
       if (primitive.props) {
         for (const [key, propDef] of Object.entries(primitive.props)) {

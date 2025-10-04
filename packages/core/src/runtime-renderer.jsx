@@ -17,7 +17,7 @@ function toPascalCase(str) {
     .join('');
 }
 
-function renderNode(node, pathArr = []) {
+function renderNode(node, pathArr = [], inspect = false) {
   if (node.type === 'container') {
     const { direction = 'row', gap = 8, padding, alignMain, alignCross, flex, backgroundColor, children = [] } = node;
 
@@ -50,11 +50,21 @@ function renderNode(node, pathArr = []) {
       styles.alignItems = alignMap[alignCross] || alignCross;
     }
 
-    const path = pathArr.join('.');
+    if (inspect) {
+      const path = pathArr.join('.');
+      return (
+        <div style={styles} data-node-path={path} data-node-type="container">
+          {children.map((child, index) => (
+            <React.Fragment key={index}>{renderNode(child, pathArr.concat(index), inspect)}</React.Fragment>
+          ))}
+        </div>
+      );
+    }
+
     return (
-      <div style={styles} data-node-path={path} data-node-type="container">
+      <div style={styles}>
         {children.map((child, index) => (
-          <React.Fragment key={index}>{renderNode(child, pathArr.concat(index))}</React.Fragment>
+          <React.Fragment key={index}>{renderNode(child, undefined, inspect)}</React.Fragment>
         ))}
       </div>
     );
@@ -70,7 +80,6 @@ function renderNode(node, pathArr = []) {
 
     const componentName = primitive.id;
 
-    // Merge default props from registry with provided props
     const mergedProps = {};
     if (primitive.props) {
       for (const [key, propDef] of Object.entries(primitive.props)) {
@@ -82,7 +91,6 @@ function renderNode(node, pathArr = []) {
     Object.assign(mergedProps, props);
 
     const style = flex !== undefined ? { flex } : undefined;
-    const dataProps = { 'data-node-path': pathArr.join('.'), 'data-node-type': 'leaf' };
 
     if (componentName === 'Icon' && mergedProps.name) {
       const iconName = toPascalCase(mergedProps.name);
@@ -90,35 +98,51 @@ function renderNode(node, pathArr = []) {
       if (!IconComponent) {
         throw new Error(`Unknown icon: ${iconName}`);
       }
-      return (
-        <Icon {...mergedProps} style={style} {...dataProps}>
+      const el = (
+        <Icon {...mergedProps} style={style}>
           <IconComponent />
         </Icon>
+      );
+      if (!inspect) return el;
+      return (
+        <span style={{ display: 'contents' }} data-node-path={pathArr.join('.')} data-node-type="leaf">{el}</span>
       );
     }
 
     if (componentName === 'Text') {
-      return <Text {...mergedProps} style={style} {...dataProps}>{content}</Text>;
+      const el = <Text {...mergedProps} style={style}>{content}</Text>;
+      if (!inspect) return el;
+      return <span style={{ display: 'contents' }} data-node-path={pathArr.join('.')} data-node-type="leaf">{el}</span>;
     }
 
     if (componentName === 'Sparkline') {
-      return <Sparkline {...mergedProps} style={style} {...dataProps} />;
+      const el = <Sparkline {...mergedProps} style={style} />;
+      if (!inspect) return el;
+      return <span style={{ display: 'contents' }} data-node-path={pathArr.join('.')} data-node-type="leaf">{el}</span>;
     }
 
     if (componentName === 'AppLogo') {
-      return <AppLogo {...mergedProps} style={style} {...dataProps} />;
+      const el = <AppLogo {...mergedProps} style={style} />;
+      if (!inspect) return el;
+      return <span style={{ display: 'contents' }} data-node-path={pathArr.join('.')} data-node-type="leaf">{el}</span>;
     }
 
     if (componentName === 'MapImage') {
-      return <MapImage {...mergedProps} style={style} {...dataProps} />;
+      const el = <MapImage {...mergedProps} style={style} />;
+      if (!inspect) return el;
+      return <span style={{ display: 'contents' }} data-node-path={pathArr.join('.')} data-node-type="leaf">{el}</span>;
     }
 
     if (componentName === 'Image') {
-      return <Image {...mergedProps} style={style} {...dataProps} />;
+      const el = <Image {...mergedProps} style={style} />;
+      if (!inspect) return el;
+      return <span style={{ display: 'contents' }} data-node-path={pathArr.join('.')} data-node-type="leaf">{el}</span>;
     }
 
     if (componentName === 'Checkbox') {
-      return <Checkbox {...mergedProps} style={style} {...dataProps} />;
+      const el = <Checkbox {...mergedProps} style={style} />;
+      if (!inspect) return el;
+      return <span style={{ display: 'contents' }} data-node-path={pathArr.join('.')} data-node-type="leaf">{el}</span>;
     }
 
     throw new Error(`Unknown component: ${componentName}`);
@@ -127,12 +151,13 @@ function renderNode(node, pathArr = []) {
   return null;
 }
 
-export function renderWidgetFromSpec(spec) {
+export function renderWidgetFromSpec(spec, options = {}) {
   if (!spec.widget?.root) {
     throw new Error('Invalid widget spec: missing widget.root');
   }
 
   const { backgroundColor, borderRadius, padding } = spec.widget;
+  const { inspect = false } = options;
 
   return function WidgetComponent() {
     return (
@@ -141,7 +166,7 @@ export function renderWidgetFromSpec(spec) {
         borderRadius={borderRadius}
         padding={padding}
       >
-        {renderNode(spec.widget.root, ['0'])}
+        {inspect ? renderNode(spec.widget.root, ['0'], true) : renderNode(spec.widget.root)}
       </WidgetShell>
     );
   };

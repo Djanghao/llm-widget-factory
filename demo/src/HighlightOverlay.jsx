@@ -1,16 +1,17 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-export default function HighlightOverlay({ containerRef, selectedPath, color = '#007AFF' }) {
+export default function HighlightOverlay({ containerRef, selectedPath, hoverPath, color = '#007AFF' }) {
   const overlayRef = useRef(null);
   const [rect, setRect] = useState(null);
+  const activePath = hoverPath || selectedPath;
 
   const updatePosition = () => {
-    if (!containerRef?.current || !selectedPath) {
+    if (!containerRef?.current || !activePath) {
       setRect(null);
       return;
     }
     const container = containerRef.current;
-    const target = container.querySelector(`[data-node-path="${selectedPath}"]`);
+    const target = container.querySelector(`[data-node-path="${activePath}"]`);
     if (!target) {
       setRect(null);
       return;
@@ -24,8 +25,7 @@ export default function HighlightOverlay({ containerRef, selectedPath, color = '
 
   useLayoutEffect(() => {
     updatePosition();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedPath]);
+  }, [activePath]);
 
   useEffect(() => {
     if (!containerRef?.current) return;
@@ -39,8 +39,7 @@ export default function HighlightOverlay({ containerRef, selectedPath, color = '
       containerRef.current && containerRef.current.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [containerRef]);
+  }, [containerRef, activePath]);
 
   if (!rect) return null;
 
@@ -57,7 +56,6 @@ export default function HighlightOverlay({ containerRef, selectedPath, color = '
         zIndex: 10,
       }}
     >
-      {/* marching glow animation */}
       <style>{`
         @keyframes wf-pulse-glow {
           0% { box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(0,0,0,0.55), 0 0 0 6px ${color}55, 0 0 10px ${color}66; }
@@ -65,14 +63,10 @@ export default function HighlightOverlay({ containerRef, selectedPath, color = '
           100% { box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(0,0,0,0.55), 0 0 0 6px ${color}55, 0 0 10px ${color}66; }
         }
       `}</style>
-
-      {/* Dim everything except the target rect */}
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: rect.top, background: 'rgba(0,0,0,0.45)' }} />
       <div style={{ position: 'absolute', top: rect.top + rect.height, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.45)' }} />
       <div style={{ position: 'absolute', top: rect.top, left: 0, width: rect.left, height: rect.height, background: 'rgba(0,0,0,0.45)' }} />
       <div style={{ position: 'absolute', top: rect.top, left: rect.left + rect.width, right: 0, height: rect.height, background: 'rgba(0,0,0,0.45)' }} />
-
-      {/* High-contrast highlight box */}
       <div
         style={{
           position: 'absolute',
