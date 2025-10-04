@@ -1,0 +1,185 @@
+import React, { useState } from 'react';
+
+function Dot({ color = '#8e8e93' }) {
+  return (
+    <span
+      style={{
+        display: 'inline-block',
+        width: 8,
+        height: 8,
+        borderRadius: '50%',
+        backgroundColor: color,
+        marginRight: 8,
+        flexShrink: 0
+      }}
+    />
+  );
+}
+
+function Caret({ open, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      aria-label={open ? 'Collapse' : 'Expand'}
+      style={{
+        width: 20,
+        height: 20,
+        border: '1px solid #3a3a3c',
+        borderRadius: 6,
+        background: '#2c2c2e',
+        color: '#f5f5f7',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 11,
+        lineHeight: 1,
+        marginRight: 8,
+        padding: 0,
+      }}
+    >
+      {open ? '▾' : '▸'}
+    </button>
+  );
+}
+
+function NodeBadge({ label, color }) {
+  return (
+    <span
+      style={{
+        fontSize: 11,
+        padding: '2px 6px',
+        borderRadius: 6,
+        backgroundColor: '#3a3a3c',
+        color,
+        marginLeft: 8,
+        fontWeight: 600,
+      }}
+    >
+      {label}
+    </span>
+  );
+}
+
+function summarizeProps(props) {
+  const entries = Object.entries(props || {});
+  if (!entries.length) return '';
+  return entries
+    .map(([k, v]) => `${k}:${typeof v === 'string' ? v : JSON.stringify(v)}`)
+    .join(', ');
+}
+
+function TreeNode({ node, depth = 0 }) {
+  const isContainer = node?.type === 'container';
+  const [open, setOpen] = useState(true);
+
+  const label = isContainer
+    ? `container`
+    : (node?.kind || 'leaf');
+
+  const meta = isContainer
+    ? `${node?.direction || 'row'}${node?.children ? ` • ${node.children.length}` : ''}`
+    : summarizeProps(node?.props);
+
+  const color = isContainer ? '#64D2FF' : '#FF9F0A';
+
+  return (
+    <div style={{ marginLeft: depth === 0 ? 0 : 12 }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          padding: '6px 8px',
+          borderRadius: 8,
+          transition: 'background 0.15s ease',
+          userSelect: 'none',
+          position: 'relative',
+          minWidth: 0,
+        }}
+      >
+        {isContainer ? (
+          <Caret open={open} onClick={() => setOpen(v => !v)} />
+        ) : (
+          <div style={{ width: 20, marginRight: 8 }} />
+        )}
+        <Dot color={color} />
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, minWidth: 0 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#f5f5f7' }}>{label}</div>
+          {isContainer ? (
+            <NodeBadge label={node?.direction === 'col' ? 'column' : 'row'} color="#64D2FF" />
+          ) : null}
+          {!isContainer && node?.flex !== undefined ? (
+            <NodeBadge label={`flex:${node.flex}`} color="#FF9F0A" />
+          ) : null}
+        </div>
+        {meta ? (
+          <div style={{
+            marginLeft: 8,
+            color: '#98989d',
+            fontSize: 12,
+            flex: 1,
+            minWidth: 0,
+            whiteSpace: 'normal',
+            wordBreak: 'break-word'
+          }}>
+            {meta}
+          </div>
+        ) : null}
+      </div>
+
+      {isContainer && open && Array.isArray(node.children) && node.children.length > 0 && (
+        <div
+          style={{
+            marginLeft: 22,
+            paddingLeft: 12,
+            borderLeft: '1px dashed #3a3a3c',
+          }}
+        >
+          {node.children.map((child, i) => (
+            <TreeNode key={i} node={child} depth={depth + 1} />)
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function TreeView({ root, style }) {
+
+  if (!root) {
+    return (
+      <div style={{
+        color: '#ff453a',
+        fontSize: 13,
+        padding: 12,
+        border: '1px solid #3a3a3c',
+        borderRadius: 10,
+        background: '#0d0d0d'
+      }}>
+        Invalid or empty widget spec
+      </div>
+    );
+  }
+
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      minHeight: 0,
+      overflow: 'hidden',
+      ...(style || {})
+    }}>
+      <div style={{
+        flex: 1,
+        minHeight: 0,
+        borderRadius: 10,
+        border: '1px solid #3a3a3c',
+        background: '#1e1e1e',
+        overflow: 'auto',
+        padding: 8
+      }}>
+        <TreeNode node={root} />
+      </div>
+    </div>
+  );
+}

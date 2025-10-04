@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { compileWidgetSpec, renderWidgetFromSpec } from '@widget-factory/core';
+import TreeView from './TreeView.jsx';
 import weatherSmallLight from './examples/weather-small-light.json';
 import weatherMediumDark from './examples/weather-medium-dark.json';
 import calendarSmallLight from './examples/calendar-small-light.json';
@@ -35,17 +36,18 @@ function App() {
 
   const currentSpec = editedSpec || JSON.stringify(currentExample.spec, null, 2);
 
-  const { generatedCode, PreviewWidget } = useMemo(() => {
+  const { generatedCode, PreviewWidget, treeRoot } = useMemo(() => {
     try {
       const spec = editedSpec ? JSON.parse(editedSpec) : currentExample.spec;
       const code = compileWidgetSpec(spec);
       const WidgetComponent = renderWidgetFromSpec(spec);
 
-      return { generatedCode: code, PreviewWidget: WidgetComponent };
+      return { generatedCode: code, PreviewWidget: WidgetComponent, treeRoot: spec?.widget?.root };
     } catch (error) {
       return {
         generatedCode: `// Error: ${error.message}`,
-        PreviewWidget: () => <div style={{ color: '#ff453a', fontSize: 13 }}>Error: {error.message}</div>
+        PreviewWidget: () => <div style={{ color: '#ff453a', fontSize: 13 }}>Error: {error.message}</div>,
+        treeRoot: null
       };
     }
   }, [currentExample, editedSpec]);
@@ -136,10 +138,21 @@ function App() {
         </div>
       </div>
 
-      {/* Main Layout: Spec → JSX → Preview */}
-      <div style={{ display: 'grid', gridTemplateColumns: '3fr 4.5fr 2.8fr', gap: 16, minWidth: 0, flex: 1, minHeight: 0, paddingBottom: 24 }}>
+      {/* Main Layout: Spec → JSX → Preview → Tree */}
+      <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gridTemplateRows: '1fr 1fr',
+          gridTemplateAreas: '"spec preview" "code tree"',
+          gap: 16,
+          minWidth: 0,
+          flex: 1,
+          minHeight: 0,
+          paddingBottom: 24,
+          gridAutoRows: 'minmax(0, 1fr)'
+        }}>
           {/* 1. WidgetSpec */}
-          <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column', gridArea: 'spec' }}>
             <h2 style={{
               fontSize: 16,
               fontWeight: 600,
@@ -186,7 +199,7 @@ function App() {
           </div>
 
           {/* 2. Generated JSX */}
-          <div style={{ minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column', gridArea: 'code' }}>
             <h2 style={{
               fontSize: 16,
               fontWeight: 600,
@@ -241,7 +254,7 @@ function App() {
           </div>
 
           {/* 3. Preview */}
-          <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column', gridArea: 'preview' }}>
             <h2 style={{
               fontSize: 16,
               fontWeight: 600,
@@ -274,6 +287,29 @@ function App() {
             }}>
               <PreviewWidget />
             </div>
+          </div>
+
+          {/* 4. Tree */}
+          <div style={{ minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column', gridArea: 'tree' }}>
+            <h2 style={{
+              fontSize: 16,
+              fontWeight: 600,
+              marginBottom: 12,
+              color: '#f5f5f7',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              flexShrink: 0
+            }}>
+              <span style={{
+                width: 6,
+                height: 6,
+                borderRadius: '50%',
+                backgroundColor: '#BF5AF2'
+              }} />
+              Tree
+            </h2>
+            <TreeView root={treeRoot} style={{ flex: 1, minHeight: 0 }} />
           </div>
         </div>
 
