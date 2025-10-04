@@ -58,8 +58,19 @@ ${indent}</div>`;
         imports.add(`import { ${iconName} } from '@widget-factory/icons';`);
       }
 
+      // Merge default props from registry with provided props
+      const mergedProps = {};
+      if (primitive.props) {
+        for (const [key, propDef] of Object.entries(primitive.props)) {
+          if (propDef.default !== undefined) {
+            mergedProps[key] = propDef.default;
+          }
+        }
+      }
+      Object.assign(mergedProps, props);
+
       const propsCode = [];
-      for (const [key, value] of Object.entries(props)) {
+      for (const [key, value] of Object.entries(mergedProps)) {
         if (key === 'name') continue;
         if (typeof value === 'string') {
           propsCode.push(`${key}="${value}"`);

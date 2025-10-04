@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { compileWidgetSpec } from '@widget-factory/core/compiler.js';
+import { compileWidgetSpec, renderWidgetFromSpec } from '@widget-factory/core';
 import weatherSpec from './examples/weather-widget-spec.json';
 import statsSpec from './examples/stats-widget-spec.json';
 import dashboardSpec from './examples/dashboard-widget-spec.json';
@@ -10,22 +10,18 @@ import stockSpec from './examples/stock-widget-spec.json';
 import musicSpec from './examples/music-widget-spec.json';
 import batterySpec from './examples/battery-widget-spec.json';
 
-import WeatherWidget from './widgets/WeatherWidget.jsx';
-import StatsWidget from './widgets/StatsWidget.jsx';
-import DashboardWidget from './widgets/DashboardWidget.jsx';
-
 function App() {
   const [selectedExample, setSelectedExample] = useState('weather');
   const [editedSpec, setEditedSpec] = useState('');
 
   const examples = {
-    weather: { name: 'Weather', spec: weatherSpec, component: WeatherWidget },
+    weather: { name: 'Weather', spec: weatherSpec },
     calendar: { name: 'Calendar', spec: calendarSpec },
     battery: { name: 'Battery', spec: batterySpec },
-    stats: { name: 'Stats', spec: statsSpec, component: StatsWidget },
+    stats: { name: 'Stats', spec: statsSpec },
     music: { name: 'Music', spec: musicSpec },
     stock: { name: 'Stock (Dark)', spec: stockSpec },
-    dashboard: { name: 'Dashboard', spec: dashboardSpec, component: DashboardWidget }
+    dashboard: { name: 'Dashboard', spec: dashboardSpec }
   };
 
   const currentExample = examples[selectedExample];
@@ -36,20 +32,7 @@ function App() {
     try {
       const spec = editedSpec ? JSON.parse(editedSpec) : currentExample.spec;
       const code = compileWidgetSpec(spec);
-
-      // Dynamically create preview widget
-      const WidgetComponent = currentExample.component || (() => {
-        const { width, height, backgroundColor, borderRadius, padding } = spec.widget;
-        return (
-          <div style={{
-            width, height, backgroundColor, borderRadius, padding,
-            overflow: 'hidden', display: 'flex', boxSizing: 'border-box'
-          }}>
-            {/* Simplified preview - real widget would need full rendering */}
-            <div style={{ color: '#666', fontSize: 13 }}>Preview unavailable</div>
-          </div>
-        );
-      });
+      const WidgetComponent = renderWidgetFromSpec(spec);
 
       return { generatedCode: code, PreviewWidget: WidgetComponent };
     } catch (error) {
@@ -122,7 +105,7 @@ function App() {
       </div>
 
       {/* Main Layout: Spec → JSX → Preview */}
-      <div style={{ display: 'grid', gridTemplateColumns: '30% 42% 28%', gap: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '3fr 4.5fr 2.8fr', gap: 20 }}>
           {/* 1. WidgetSpec */}
           <div>
             <h2 style={{

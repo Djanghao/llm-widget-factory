@@ -1,12 +1,14 @@
 {
   "primitives": {
-    "Title": {
-      "id": "Title",
+    "Text": {
+      "id": "Text",
       "kind": "text.title",
       "props": {
-        "fontSize": { "type": "number", "unit": "px", "default": 24 },
+        "fontSize": { "type": "number", "unit": "px", "default": 18 },
         "color": { "type": "color", "default": "#000000" },
-        "align": { "type": "enum", "values": ["left", "center", "right", "start", "end"], "default": "left" }
+        "align": { "type": "enum", "values": ["left", "center", "right", "start", "end"], "default": "left" },
+        "fontWeight": { "type": "number", "default": 400 },
+        "lineHeight": { "type": "number", "default": 1.3 }
       },
       "sml": { "S": true, "M": true, "L": true },
       "flexHints": {
@@ -15,34 +17,38 @@
         "defaultGap": 8
       }
     },
-    "Metric": {
-      "id": "Metric",
-      "kind": "number.metric",
-      "props": {
-        "fontSize": { "type": "number", "unit": "px", "default": 32 },
-        "color": { "type": "color", "default": "#000000" },
-        "align": { "type": "enum", "values": ["left", "center", "right", "start", "end"], "default": "left" }
-      },
-      "sml": { "S": true, "M": true, "L": true },
-      "flexHints": {
-        "fixed": false,
-        "defaultFlex": 0,
-        "defaultGap": 8
-      }
-    },
-    "Label": {
-      "id": "Label",
+    "Text_Label": {
+      "id": "Text",
       "kind": "text.label",
       "props": {
         "fontSize": { "type": "number", "unit": "px", "default": 13 },
         "color": { "type": "color", "default": "#666666" },
-        "align": { "type": "enum", "values": ["left", "center", "right", "start", "end"], "default": "left" }
+        "align": { "type": "enum", "values": ["left", "center", "right", "start", "end"], "default": "left" },
+        "fontWeight": { "type": "number", "default": 400 },
+        "lineHeight": { "type": "number", "default": 1.3 }
       },
       "sml": { "S": true, "M": true, "L": true },
       "flexHints": {
         "fixed": false,
         "defaultFlex": 0,
         "defaultGap": 4
+      }
+    },
+    "Text_Metric": {
+      "id": "Text",
+      "kind": "number.metric",
+      "props": {
+        "fontSize": { "type": "number", "unit": "px", "default": 32 },
+        "color": { "type": "color", "default": "#000000" },
+        "align": { "type": "enum", "values": ["left", "center", "right", "start", "end"], "default": "left" },
+        "fontWeight": { "type": "number", "default": 600 },
+        "lineHeight": { "type": "number", "default": 1 }
+      },
+      "sml": { "S": true, "M": true, "L": true },
+      "flexHints": {
+        "fixed": false,
+        "defaultFlex": 0,
+        "defaultGap": 8
       }
     },
     "Icon": {
