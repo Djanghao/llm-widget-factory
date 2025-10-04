@@ -7,7 +7,8 @@ export function Text({
   fontWeight = 400,
   lineHeight = 1.3,
   children,
-  style = {}
+  style = {},
+  ...rest
 }) {
   return (
     <div
@@ -19,6 +20,7 @@ export function Text({
         lineHeight,
         ...style
       }}
+      {...rest}
     >
       {children}
     </div>

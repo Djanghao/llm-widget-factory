@@ -17,7 +17,7 @@ function toPascalCase(str) {
     .join('');
 }
 
-function renderNode(node) {
+function renderNode(node, pathArr = []) {
   if (node.type === 'container') {
     const { direction = 'row', gap = 8, padding, alignMain, alignCross, flex, backgroundColor, children = [] } = node;
 
@@ -50,10 +50,11 @@ function renderNode(node) {
       styles.alignItems = alignMap[alignCross] || alignCross;
     }
 
+    const path = pathArr.join('.');
     return (
-      <div style={styles}>
+      <div style={styles} data-node-path={path} data-node-type="container">
         {children.map((child, index) => (
-          <React.Fragment key={index}>{renderNode(child)}</React.Fragment>
+          <React.Fragment key={index}>{renderNode(child, pathArr.concat(index))}</React.Fragment>
         ))}
       </div>
     );
@@ -81,6 +82,7 @@ function renderNode(node) {
     Object.assign(mergedProps, props);
 
     const style = flex !== undefined ? { flex } : undefined;
+    const dataProps = { 'data-node-path': pathArr.join('.'), 'data-node-type': 'leaf' };
 
     if (componentName === 'Icon' && mergedProps.name) {
       const iconName = toPascalCase(mergedProps.name);
@@ -89,34 +91,34 @@ function renderNode(node) {
         throw new Error(`Unknown icon: ${iconName}`);
       }
       return (
-        <Icon {...mergedProps} style={style}>
+        <Icon {...mergedProps} style={style} {...dataProps}>
           <IconComponent />
         </Icon>
       );
     }
 
     if (componentName === 'Text') {
-      return <Text {...mergedProps} style={style}>{content}</Text>;
+      return <Text {...mergedProps} style={style} {...dataProps}>{content}</Text>;
     }
 
     if (componentName === 'Sparkline') {
-      return <Sparkline {...mergedProps} style={style} />;
+      return <Sparkline {...mergedProps} style={style} {...dataProps} />;
     }
 
     if (componentName === 'AppLogo') {
-      return <AppLogo {...mergedProps} style={style} />;
+      return <AppLogo {...mergedProps} style={style} {...dataProps} />;
     }
 
     if (componentName === 'MapImage') {
-      return <MapImage {...mergedProps} style={style} />;
+      return <MapImage {...mergedProps} style={style} {...dataProps} />;
     }
 
     if (componentName === 'Image') {
-      return <Image {...mergedProps} style={style} />;
+      return <Image {...mergedProps} style={style} {...dataProps} />;
     }
 
     if (componentName === 'Checkbox') {
-      return <Checkbox {...mergedProps} style={style} />;
+      return <Checkbox {...mergedProps} style={style} {...dataProps} />;
     }
 
     throw new Error(`Unknown component: ${componentName}`);
@@ -139,7 +141,7 @@ export function renderWidgetFromSpec(spec) {
         borderRadius={borderRadius}
         padding={padding}
       >
-        {renderNode(spec.widget.root)}
+        {renderNode(spec.widget.root, ['0'])}
       </WidgetShell>
     );
   };

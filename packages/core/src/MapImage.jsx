@@ -4,7 +4,8 @@ export function MapImage({
   width,
   height,
   url,
-  style = {}
+  style = {},
+  ...rest
 }) {
   return (
     <img
@@ -18,6 +19,7 @@ export function MapImage({
         flexShrink: 0,
         ...style
       }}
+      {...rest}
     />
   );
 }

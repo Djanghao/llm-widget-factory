@@ -5,7 +5,8 @@ export function Sparkline({
   height = 40,
   color = '#34C759',
   data = [],
-  style = {}
+  style = {},
+  ...rest
 }) {
   const canvasRef = useRef(null);
 
@@ -60,6 +61,7 @@ export function Sparkline({
         flexShrink: 0,
         ...style
       }}
+      {...rest}
     />
   );
 }

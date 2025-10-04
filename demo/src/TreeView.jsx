@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 
 function Dot({ color = '#8e8e93' }) {
   return (
@@ -19,7 +19,7 @@ function Dot({ color = '#8e8e93' }) {
 function Caret({ open, onClick }) {
   return (
     <button
-      onClick={onClick}
+      onClick={(e) => { e.stopPropagation(); onClick && onClick(); }}
       aria-label={open ? 'Collapse' : 'Expand'}
       style={{
         width: 20,
@@ -69,7 +69,7 @@ function summarizeProps(props) {
     .join(', ');
 }
 
-function TreeNode({ node, depth = 0 }) {
+function TreeNode({ node, depth = 0, path = '0', selectedPath, onSelect }) {
   const isContainer = node?.type === 'container';
   const [open, setOpen] = useState(true);
 
@@ -83,19 +83,26 @@ function TreeNode({ node, depth = 0 }) {
 
   const color = isContainer ? '#64D2FF' : '#FF9F0A';
 
+  const isSelected = selectedPath === path;
+
   return (
     <div style={{ marginLeft: depth === 0 ? 0 : 12 }}>
       <div
+        onClick={() => onSelect && onSelect(path)}
         style={{
           display: 'flex',
           alignItems: 'center',
           padding: '6px 8px',
           borderRadius: 8,
-          transition: 'background 0.15s ease',
+          transition: 'background 0.15s ease, box-shadow 0.15s ease',
           userSelect: 'none',
           position: 'relative',
           minWidth: 0,
+          cursor: 'pointer',
+          background: isSelected ? 'rgba(0,122,255,0.18)' : 'transparent',
+          boxShadow: isSelected ? 'inset 0 0 0 1px rgba(0,122,255,0.6)' : 'none'
         }}
+        data-tree-path={path}
       >
         {isContainer ? (
           <Caret open={open} onClick={() => setOpen(v => !v)} />
@@ -136,7 +143,7 @@ function TreeNode({ node, depth = 0 }) {
           }}
         >
           {node.children.map((child, i) => (
-            <TreeNode key={i} node={child} depth={depth + 1} />)
+            <TreeNode key={i} node={child} depth={depth + 1} path={`${path}.${i}`} selectedPath={selectedPath} onSelect={onSelect} />)
           )}
         </div>
       )}
@@ -144,7 +151,7 @@ function TreeNode({ node, depth = 0 }) {
   );
 }
 
-export default function TreeView({ root, style }) {
+export default function TreeView({ root, style, selectedPath, onSelect }) {
 
   if (!root) {
     return (
@@ -178,7 +185,7 @@ export default function TreeView({ root, style }) {
         overflow: 'auto',
         padding: 8
       }}>
-        <TreeNode node={root} />
+        <TreeNode node={root} selectedPath={selectedPath} onSelect={onSelect} path={'0'} />
       </div>
     </div>
   );

@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { compileWidgetSpec, renderWidgetFromSpec } from '@widget-factory/core';
 import TreeView from './TreeView.jsx';
+import HighlightOverlay from './HighlightOverlay.jsx';
 import weatherSmallLight from './examples/weather-small-light.json';
 import weatherMediumDark from './examples/weather-medium-dark.json';
 import calendarSmallLight from './examples/calendar-small-light.json';
@@ -18,6 +19,21 @@ function App() {
   const [selectedExample, setSelectedExample] = useState('weatherSmallLight');
   const [editedSpec, setEditedSpec] = useState('');
   const [showComponentsModal, setShowComponentsModal] = useState(false);
+  const [selectedPath, setSelectedPath] = useState(null);
+  const previewContainerRef = useRef(null);
+  const treeContainerRef = useRef(null);
+  const handleSelectNode = (path) => setSelectedPath(prev => (prev === path ? null : path));
+
+  useEffect(() => {
+    const onDocClick = (e) => {
+      if (!treeContainerRef.current) return;
+      if (!treeContainerRef.current.contains(e.target)) {
+        setSelectedPath(null);
+      }
+    };
+    document.addEventListener('click', onDocClick);
+    return () => document.removeEventListener('click', onDocClick);
+  }, []);
 
   const examples = {
     weatherSmallLight: { name: 'Weather S-Light', spec: weatherSmallLight },
@@ -59,6 +75,7 @@ function App() {
   const handleExampleChange = (key) => {
     setSelectedExample(key);
     setEditedSpec('');
+    setSelectedPath(null);
   };
 
   return (
@@ -273,7 +290,7 @@ function App() {
               }} />
               Preview
             </h2>
-            <div style={{
+          <div style={{
               backgroundColor: '#0d0d0d',
               padding: 40,
               borderRadius: 10,
@@ -283,14 +300,17 @@ function App() {
               flex: 1,
               minHeight: 0,
               boxSizing: 'border-box',
-              border: '1px solid #3a3a3c'
-            }}>
+              border: '1px solid #3a3a3c',
+              position: 'relative',
+              overflow: 'auto'
+            }} ref={previewContainerRef}>
               <PreviewWidget />
+              <HighlightOverlay containerRef={previewContainerRef} selectedPath={selectedPath} />
             </div>
           </div>
 
           {/* 4. Tree */}
-          <div style={{ minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column', gridArea: 'tree' }}>
+          <div ref={treeContainerRef} style={{ minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column', gridArea: 'tree' }}>
             <h2 style={{
               fontSize: 16,
               fontWeight: 600,
@@ -309,7 +329,12 @@ function App() {
               }} />
               Tree
             </h2>
-            <TreeView root={treeRoot} style={{ flex: 1, minHeight: 0 }} />
+            <TreeView
+              root={treeRoot}
+              style={{ flex: 1, minHeight: 0 }}
+              selectedPath={selectedPath}
+              onSelect={handleSelectNode}
+            />
           </div>
         </div>
 
