@@ -1,8 +1,6 @@
 import React from 'react';
 
 export function WidgetShell({
-  width,
-  height,
   backgroundColor = '#f2f2f7',
   borderRadius = 20,
   padding = 16,
@@ -12,13 +10,12 @@ export function WidgetShell({
   return (
     <div
       style={{
-        width,
-        height,
         backgroundColor,
         borderRadius,
         padding,
         overflow: 'hidden',
-        display: 'flex',
+        display: 'inline-flex',
+        flexDirection: 'column',
         boxSizing: 'border-box',
         ...style
       }}

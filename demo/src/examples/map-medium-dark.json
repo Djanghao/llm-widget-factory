@@ -1,0 +1,73 @@
+{
+  "widget": {
+    "backgroundColor": "#1c1c1e",
+    "borderRadius": 20,
+    "padding": 0,
+    "root": {
+      "type": "container",
+      "direction": "col",
+      "gap": 0,
+      "flex": 1,
+      "children": [
+        {
+          "type": "leaf",
+          "kind": "media.map",
+          "flex": 0,
+          "props": {
+            "width": 338,
+            "height": 158,
+            "url": "https://api.mapbox.com/styles/v1/mapbox/dark-v11/static/-122.4194,37.7749,10/338x158@2x?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw"
+          }
+        },
+        {
+          "type": "container",
+          "direction": "row",
+          "gap": 12,
+          "flex": 0,
+          "padding": 16,
+          "alignCross": "center",
+          "alignMain": "start",
+          "backgroundColor": "rgba(0,0,0,0.6)",
+          "children": [
+            {
+              "type": "container",
+              "direction": "row",
+              "gap": 0,
+              "flex": 0,
+              "children": [
+                {
+                  "type": "leaf",
+                  "kind": "media.icon",
+                  "flex": 0,
+                  "props": {
+                    "size": 40,
+                    "color": "#8E8E93",
+                    "name": "circle.fill"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "container",
+              "direction": "row",
+              "gap": 0,
+              "flex": 0,
+              "children": [
+                {
+                  "type": "leaf",
+                  "kind": "media.icon",
+                  "flex": 0,
+                  "props": {
+                    "size": 40,
+                    "color": "#FF9500",
+                    "name": "circle.fill"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

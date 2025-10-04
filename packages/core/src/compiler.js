@@ -9,7 +9,7 @@ export function compileWidgetSpec(widgetSpec) {
     const indent = '  '.repeat(depth);
 
     if (node.type === 'container') {
-      const { direction = 'row', gap = 8, padding, alignMain, alignCross, flex, children = [] } = node;
+      const { direction = 'row', gap = 8, padding, alignMain, alignCross, flex, backgroundColor, children = [] } = node;
 
       const styles = [];
       styles.push(`display: 'flex'`);
@@ -17,6 +17,7 @@ export function compileWidgetSpec(widgetSpec) {
       if (gap) styles.push(`gap: ${gap}`);
       if (padding) styles.push(`padding: ${padding}`);
       if (flex !== undefined) styles.push(`flex: ${flex}`);
+      if (backgroundColor) styles.push(`backgroundColor: '${backgroundColor}'`);
       if (alignMain) {
         const alignMap = {
           start: 'flex-start',
@@ -71,7 +72,7 @@ ${indent}</div>`;
 
       const propsCode = [];
       for (const [key, value] of Object.entries(mergedProps)) {
-        if (key === 'name') continue;
+        if (componentName === 'Icon' && key === 'name') continue;
         if (typeof value === 'string') {
           propsCode.push(`${key}="${value}"`);
         } else {
@@ -105,15 +106,13 @@ ${indent}</div>`;
   }
 
   if (widgetSpec.widget?.root) {
-    const { width, height, backgroundColor, borderRadius, padding } = widgetSpec.widget;
+    const { backgroundColor, borderRadius, padding } = widgetSpec.widget;
 
     const rootContent = renderNode(widgetSpec.widget.root, 2);
 
     const importsCode = Array.from(imports).join('\n');
 
     const shellProps = [];
-    if (width !== undefined) shellProps.push(`width={${width}}`);
-    if (height !== undefined) shellProps.push(`height={${height}}`);
     if (backgroundColor) shellProps.push(`backgroundColor="${backgroundColor}"`);
     if (borderRadius !== undefined) shellProps.push(`borderRadius={${borderRadius}}`);
     if (padding !== undefined) shellProps.push(`padding={${padding}}`);

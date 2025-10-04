@@ -2,26 +2,32 @@ import React, { useState, useMemo } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { compileWidgetSpec, renderWidgetFromSpec } from '@widget-factory/core';
-import weatherSpec from './examples/weather-widget-spec.json';
-import statsSpec from './examples/stats-widget-spec.json';
-import dashboardSpec from './examples/dashboard-widget-spec.json';
-import calendarSpec from './examples/calendar-widget-spec.json';
-import stockSpec from './examples/stock-widget-spec.json';
-import musicSpec from './examples/music-widget-spec.json';
-import batterySpec from './examples/battery-widget-spec.json';
+import weatherSmallLight from './examples/weather-small-light.json';
+import weatherMediumDark from './examples/weather-medium-dark.json';
+import calendarSmallLight from './examples/calendar-small-light.json';
+import calendarSmallDark from './examples/calendar-small-dark.json';
+import notesSmallLight from './examples/notes-small-light.json';
+import notesSmallDark from './examples/notes-small-dark.json';
+import stockMediumDark from './examples/stock-medium-dark.json';
+import remindersLargeLight from './examples/reminders-large-light.json';
+import photoMediumLight from './examples/photo-medium-light.json';
+import mapMediumDark from './examples/map-medium-dark.json';
 
 function App() {
-  const [selectedExample, setSelectedExample] = useState('weather');
+  const [selectedExample, setSelectedExample] = useState('weatherSmallLight');
   const [editedSpec, setEditedSpec] = useState('');
 
   const examples = {
-    weather: { name: 'Weather', spec: weatherSpec },
-    calendar: { name: 'Calendar', spec: calendarSpec },
-    battery: { name: 'Battery', spec: batterySpec },
-    stats: { name: 'Stats', spec: statsSpec },
-    music: { name: 'Music', spec: musicSpec },
-    stock: { name: 'Stock (Dark)', spec: stockSpec },
-    dashboard: { name: 'Dashboard', spec: dashboardSpec }
+    weatherSmallLight: { name: 'Weather S-Light', spec: weatherSmallLight },
+    weatherMediumDark: { name: 'Weather M-Dark', spec: weatherMediumDark },
+    calendarSmallLight: { name: 'Calendar S-Light', spec: calendarSmallLight },
+    calendarSmallDark: { name: 'Calendar S-Dark', spec: calendarSmallDark },
+    notesSmallLight: { name: 'Notes S-Light', spec: notesSmallLight },
+    notesSmallDark: { name: 'Notes S-Dark', spec: notesSmallDark },
+    stockMediumDark: { name: 'Stock M-Dark', spec: stockMediumDark },
+    remindersLargeLight: { name: 'Reminders L-Light', spec: remindersLargeLight },
+    photoMediumLight: { name: 'Photo M-Light', spec: photoMediumLight },
+    mapMediumDark: { name: 'Map M-Dark', spec: mapMediumDark }
   };
 
   const currentExample = examples[selectedExample];

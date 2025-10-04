@@ -1,0 +1,255 @@
+{
+  "widget": {
+    "backgroundColor": "#000000",
+    "borderRadius": 20,
+    "padding": 16,
+    "root": {
+      "type": "container",
+      "direction": "col",
+      "gap": 12,
+      "flex": 1,
+      "children": [
+        {
+          "type": "container",
+          "direction": "row",
+          "gap": 16,
+          "flex": 1,
+          "alignCross": "center",
+          "alignMain": "between",
+          "children": [
+            {
+              "type": "container",
+              "direction": "col",
+              "gap": 4,
+              "flex": 0,
+              "children": [
+                {
+                  "type": "leaf",
+                  "kind": "text.title",
+                  "flex": 0,
+                  "props": {
+                    "fontSize": 17,
+                    "color": "#ffffff",
+                    "fontWeight": 600
+                  },
+                  "content": "Dow Jones"
+                },
+                {
+                  "type": "leaf",
+                  "kind": "text.label",
+                  "flex": 0,
+                  "props": {
+                    "fontSize": 13,
+                    "color": "#666666"
+                  },
+                  "content": "Dow Jones"
+                }
+              ]
+            },
+            {
+              "type": "leaf",
+              "kind": "chart.sparkline",
+              "flex": 0,
+              "props": {
+                "width": 80,
+                "height": 40,
+                "color": "#34C759",
+                "data": [100, 105, 103, 108, 106, 110, 115, 112, 118, 120]
+              }
+            },
+            {
+              "type": "container",
+              "direction": "col",
+              "gap": 2,
+              "flex": 0,
+              "alignCross": "end",
+              "children": [
+                {
+                  "type": "leaf",
+                  "kind": "number.metric",
+                  "flex": 0,
+                  "props": {
+                    "fontSize": 17,
+                    "color": "#ffffff",
+                    "fontWeight": 600
+                  },
+                  "content": "34,575.31"
+                },
+                {
+                  "type": "leaf",
+                  "kind": "text.label",
+                  "flex": 0,
+                  "props": {
+                    "fontSize": 13,
+                    "color": "#34C759"
+                  },
+                  "content": "+151.27"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "container",
+          "direction": "row",
+          "gap": 16,
+          "flex": 1,
+          "alignCross": "center",
+          "alignMain": "between",
+          "children": [
+            {
+              "type": "container",
+              "direction": "col",
+              "gap": 4,
+              "flex": 0,
+              "children": [
+                {
+                  "type": "leaf",
+                  "kind": "text.title",
+                  "flex": 0,
+                  "props": {
+                    "fontSize": 17,
+                    "color": "#ffffff",
+                    "fontWeight": 600
+                  },
+                  "content": "S&P 500"
+                },
+                {
+                  "type": "leaf",
+                  "kind": "text.label",
+                  "flex": 0,
+                  "props": {
+                    "fontSize": 13,
+                    "color": "#666666"
+                  },
+                  "content": "S&P 500"
+                }
+              ]
+            },
+            {
+              "type": "leaf",
+              "kind": "chart.sparkline",
+              "flex": 0,
+              "props": {
+                "width": 80,
+                "height": 40,
+                "color": "#34C759",
+                "data": [95, 98, 96, 100, 102, 105, 103, 107, 108, 110]
+              }
+            },
+            {
+              "type": "container",
+              "direction": "col",
+              "gap": 2,
+              "flex": 0,
+              "alignCross": "end",
+              "children": [
+                {
+                  "type": "leaf",
+                  "kind": "number.metric",
+                  "flex": 0,
+                  "props": {
+                    "fontSize": 17,
+                    "color": "#ffffff",
+                    "fontWeight": 600
+                  },
+                  "content": "4,202.08"
+                },
+                {
+                  "type": "leaf",
+                  "kind": "text.label",
+                  "flex": 0,
+                  "props": {
+                    "fontSize": 13,
+                    "color": "#34C759"
+                  },
+                  "content": "+9.66"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "container",
+          "direction": "row",
+          "gap": 16,
+          "flex": 1,
+          "alignCross": "center",
+          "alignMain": "between",
+          "children": [
+            {
+              "type": "container",
+              "direction": "col",
+              "gap": 4,
+              "flex": 0,
+              "children": [
+                {
+                  "type": "leaf",
+                  "kind": "text.title",
+                  "flex": 0,
+                  "props": {
+                    "fontSize": 17,
+                    "color": "#ffffff",
+                    "fontWeight": 600
+                  },
+                  "content": "AAPL"
+                },
+                {
+                  "type": "leaf",
+                  "kind": "text.label",
+                  "flex": 0,
+                  "props": {
+                    "fontSize": 13,
+                    "color": "#666666"
+                  },
+                  "content": "Apple Inc."
+                }
+              ]
+            },
+            {
+              "type": "leaf",
+              "kind": "chart.sparkline",
+              "flex": 0,
+              "props": {
+                "width": 80,
+                "height": 40,
+                "color": "#34C759",
+                "data": [125, 128, 126, 130, 132, 135, 133, 136, 138, 140]
+              }
+            },
+            {
+              "type": "container",
+              "direction": "col",
+              "gap": 2,
+              "flex": 0,
+              "alignCross": "end",
+              "children": [
+                {
+                  "type": "leaf",
+                  "kind": "number.metric",
+                  "flex": 0,
+                  "props": {
+                    "fontSize": 17,
+                    "color": "#ffffff",
+                    "fontWeight": 600
+                  },
+                  "content": "132.94"
+                },
+                {
+                  "type": "leaf",
+                  "kind": "text.label",
+                  "flex": 0,
+                  "props": {
+                    "fontSize": 13,
+                    "color": "#34C759"
+                  },
+                  "content": "+5.50"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

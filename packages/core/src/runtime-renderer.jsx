@@ -2,6 +2,11 @@ import React from 'react';
 import { WidgetShell } from './WidgetShell.jsx';
 import { Text } from './Text.jsx';
 import { Icon } from './Icon.jsx';
+import { Sparkline } from './Sparkline.jsx';
+import { AppLogo } from './AppLogo.jsx';
+import { MapImage } from './MapImage.jsx';
+import { Image } from './Image.jsx';
+import { Checkbox } from './Checkbox.jsx';
 import * as Icons from '@widget-factory/icons';
 import registry from '../primitives-registry.json';
 
@@ -14,7 +19,7 @@ function toPascalCase(str) {
 
 function renderNode(node) {
   if (node.type === 'container') {
-    const { direction = 'row', gap = 8, padding, alignMain, alignCross, flex, children = [] } = node;
+    const { direction = 'row', gap = 8, padding, alignMain, alignCross, flex, backgroundColor, children = [] } = node;
 
     const styles = {
       display: 'flex',
@@ -24,6 +29,7 @@ function renderNode(node) {
     if (gap) styles.gap = gap;
     if (padding) styles.padding = padding;
     if (flex !== undefined) styles.flex = flex;
+    if (backgroundColor) styles.backgroundColor = backgroundColor;
 
     if (alignMain) {
       const alignMap = {
@@ -93,6 +99,26 @@ function renderNode(node) {
       return <Text {...mergedProps} style={style}>{content}</Text>;
     }
 
+    if (componentName === 'Sparkline') {
+      return <Sparkline {...mergedProps} style={style} />;
+    }
+
+    if (componentName === 'AppLogo') {
+      return <AppLogo {...mergedProps} style={style} />;
+    }
+
+    if (componentName === 'MapImage') {
+      return <MapImage {...mergedProps} style={style} />;
+    }
+
+    if (componentName === 'Image') {
+      return <Image {...mergedProps} style={style} />;
+    }
+
+    if (componentName === 'Checkbox') {
+      return <Checkbox {...mergedProps} style={style} />;
+    }
+
     throw new Error(`Unknown component: ${componentName}`);
   }
 
@@ -104,13 +130,11 @@ export function renderWidgetFromSpec(spec) {
     throw new Error('Invalid widget spec: missing widget.root');
   }
 
-  const { width, height, backgroundColor, borderRadius, padding } = spec.widget;
+  const { backgroundColor, borderRadius, padding } = spec.widget;
 
   return function WidgetComponent() {
     return (
       <WidgetShell
-        width={width}
-        height={height}
         backgroundColor={backgroundColor}
         borderRadius={borderRadius}
         padding={padding}

@@ -1,65 +1,74 @@
 {
   "widget": {
-    "width": 158,
-    "height": 158,
-    "backgroundColor": "#f2f2f7",
+    "backgroundColor": "#1c1c1e",
     "borderRadius": 20,
-    "padding": 16,
+    "padding": 0,
     "root": {
       "type": "container",
       "direction": "col",
-      "gap": 12,
-      "alignMain": "between",
+      "gap": 0,
+      "flex": 1,
       "children": [
         {
           "type": "container",
           "direction": "row",
           "gap": 8,
+          "flex": 0,
+          "padding": 16,
           "alignCross": "center",
+          "backgroundColor": "#FFCC00",
           "children": [
             {
               "type": "leaf",
               "kind": "media.icon",
+              "flex": 0,
               "props": {
-                "size": 24,
-                "color": "#FF9500",
-                "name": "cloud.sun.fill"
+                "size": 20,
+                "color": "#ffffff",
+                "name": "calendar"
               }
             },
             {
               "type": "leaf",
-              "kind": "text.label",
+              "kind": "text.title",
+              "flex": 1,
               "props": {
-                "fontSize": 13,
-                "color": "#666666"
+                "fontSize": 16,
+                "color": "#ffffff",
+                "fontWeight": 600
               },
-              "content": "San Francisco"
+              "content": "Notes"
             }
           ]
         },
         {
           "type": "container",
           "direction": "col",
-          "gap": 4,
+          "gap": 12,
+          "flex": 1,
+          "padding": 16,
           "children": [
             {
               "type": "leaf",
-              "kind": "number.metric",
+              "kind": "text.title",
+              "flex": 0,
               "props": {
-                "fontSize": 48,
-                "color": "#000000",
-                "align": "left"
+                "fontSize": 16,
+                "color": "#ffffff",
+                "fontWeight": 400,
+                "lineHeight": 1.3
               },
-              "content": "72°"
+              "content": "Steve's Surprise Birthday Party Checklist"
             },
             {
               "type": "leaf",
               "kind": "text.label",
+              "flex": 0,
               "props": {
-                "fontSize": 15,
+                "fontSize": 14,
                 "color": "#666666"
               },
-              "content": "Partly Cloudy"
+              "content": "Yesterday"
             }
           ]
         }
