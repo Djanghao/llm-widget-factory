@@ -132,15 +132,19 @@ export function renderWidgetFromSpec(spec, options = {}) {
     throw new Error('Invalid widget spec: missing widget.root');
   }
 
-  const { backgroundColor, borderRadius, padding } = spec.widget;
+  const { backgroundColor, borderRadius, padding, width, height } = spec.widget;
   const { inspect = false } = options;
 
   return function WidgetComponent() {
+    const shellStyle = {};
+    if (width !== undefined) shellStyle.width = width;
+    if (height !== undefined) shellStyle.height = height;
     return (
       <WidgetShell
         backgroundColor={backgroundColor}
         borderRadius={borderRadius}
         padding={padding}
+        style={shellStyle}
       >
         {inspect ? renderNode(spec.widget.root, ['0'], true) : renderNode(spec.widget.root)}
       </WidgetShell>

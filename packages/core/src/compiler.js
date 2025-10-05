@@ -90,14 +90,19 @@ function buildCodeAndMap(widgetSpec) {
   renderNode(widgetSpec.widget.root, 2, '0');
 
   const importsCode = Array.from(imports).join('\n');
-  const { backgroundColor, borderRadius, padding } = widgetSpec.widget;
+  const { backgroundColor, borderRadius, padding, width, height } = widgetSpec.widget;
   const shellProps = [];
   if (backgroundColor) shellProps.push(`backgroundColor="${backgroundColor}"`);
   if (borderRadius !== undefined) shellProps.push(`borderRadius={${borderRadius}}`);
   if (padding !== undefined) shellProps.push(`padding={${padding}}`);
   const shellPropsStr = shellProps.length > 0 ? ' ' + shellProps.join(' ') : '';
 
-  const prefix = `${importsCode}\n\nexport default function Widget() {\n  return (\n    <WidgetShell${shellPropsStr}>\n`;
+  const styleParts = [];
+  if (width !== undefined) styleParts.push(`width: ${width}`);
+  if (height !== undefined) styleParts.push(`height: ${height}`);
+  const stylePropStr = styleParts.length > 0 ? ` style={{ ${styleParts.join(', ')} }}` : '';
+
+  const prefix = `${importsCode}\n\nexport default function Widget() {\n  return (\n    <WidgetShell${shellPropsStr}${stylePropStr}>\n`;
   const suffix = `\n    </WidgetShell>\n  );\n}\n`;
   const prefixLineCount = prefix.split('\n').length - 1;
 

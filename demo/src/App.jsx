@@ -25,6 +25,7 @@ function App() {
   const [selectedPath, setSelectedPath] = useState(null);
   const [hoverPath, setHoverPath] = useState(null);
   const previewContainerRef = useRef(null);
+  const widgetFrameRef = useRef(null);
   const treeContainerRef = useRef(null);
   const specTextareaRef = useRef(null);
   const jsxScrollRef = useRef(null);
@@ -102,6 +103,34 @@ function App() {
     setSelectedExample(key);
     setEditedSpec('');
     setSelectedPath(null);
+  };
+
+  // Utilities: safely parse current spec and update width/height
+  const parseCurrentSpecObject = () => {
+    try {
+      return editedSpec ? JSON.parse(editedSpec) : JSON.parse(JSON.stringify(currentExample.spec));
+    } catch {
+      // If spec JSON is invalid due to user edits, do not attempt to modify it
+      return null;
+    }
+  };
+
+  const applySizeToSpec = (width, height) => {
+    const obj = parseCurrentSpecObject();
+    if (!obj || !obj.widget) return;
+    const next = { ...obj, widget: { ...obj.widget } };
+    next.widget.width = Math.max(1, Math.round(width));
+    next.widget.height = Math.max(1, Math.round(height));
+    setEditedSpec(JSON.stringify(next, null, 2));
+  };
+
+  const restoreSizeInSpec = () => {
+    const obj = parseCurrentSpecObject();
+    if (!obj || !obj.widget) return;
+    const next = { ...obj, widget: { ...obj.widget } };
+    delete next.widget.width;
+    delete next.widget.height;
+    setEditedSpec(JSON.stringify(next, null, 2));
   };
 
   // Sync highlights in code/spec when hover/selection changes
@@ -400,6 +429,26 @@ function App() {
                 backgroundColor: '#007AFF'
               }} />
               Preview
+              <button
+                onClick={restoreSizeInSpec}
+                style={{
+                  marginLeft: 'auto',
+                  padding: '6px 10px',
+                  fontSize: 12,
+                  fontWeight: 500,
+                  backgroundColor: '#2c2c2e',
+                  color: '#f5f5f7',
+                  border: '1px solid #3a3a3c',
+                  borderRadius: 6,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#3a3a3c'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2c2c2e'}
+                title="Restore widget size"
+              >
+                Restore
+              </button>
             </h2>
           <div style={{
               backgroundColor: '#0d0d0d',
@@ -415,7 +464,54 @@ function App() {
               position: 'relative',
               overflow: 'auto'
             }} ref={previewContainerRef}>
-              <PreviewWidget />
+              <div
+                ref={widgetFrameRef}
+                style={{ position: 'relative', display: 'inline-block' }}
+              >
+                <PreviewWidget />
+                {/* Resize handle (bottom-right) */}
+                <div
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    const frame = widgetFrameRef.current;
+                    if (!frame) return;
+                    const rect = frame.getBoundingClientRect();
+                    const startX = e.clientX;
+                    const startY = e.clientY;
+                    const startW = rect.width;
+                    const startH = rect.height;
+
+                    const onMove = (ev) => {
+                      const dx = ev.clientX - startX;
+                      const dy = ev.clientY - startY;
+                      const nw = Math.max(40, Math.round(startW + dx));
+                      const nh = Math.max(40, Math.round(startH + dy));
+                      applySizeToSpec(nw, nh);
+                    };
+                    const onUp = () => {
+                      window.removeEventListener('mousemove', onMove);
+                      window.removeEventListener('mouseup', onUp);
+                    };
+                    window.addEventListener('mousemove', onMove);
+                    window.addEventListener('mouseup', onUp);
+                  }}
+                  style={{
+                    position: 'absolute',
+                    width: 14,
+                    height: 14,
+                    right: -7,
+                    bottom: -7,
+                    background: '#007AFF',
+                    borderRadius: 4,
+                    border: '2px solid #ffffff',
+                    boxShadow: '0 0 0 1px #3a3a3c',
+                    cursor: 'se-resize',
+                    zIndex: 5
+                  }}
+                  title="Drag to resize"
+                />
+                {/* Resizer handle only; no persistent outline to avoid UI changes */}
+              </div>
               {inspectMode && (
                 <HighlightOverlay containerRef={previewContainerRef} selectedPath={selectedPath} hoverPath={hoverPath} />
               )}
