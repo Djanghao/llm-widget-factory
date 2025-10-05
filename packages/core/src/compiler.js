@@ -51,10 +51,7 @@ function buildCodeAndMap(widgetSpec) {
       const componentName = primitive.id;
       imports.add(`import { ${componentName} } from '@widget-factory/core';`);
 
-      if (componentName === 'Icon' && props.name) {
-        const iconName = toPascalCase(props.name);
-        imports.add(`import { ${iconName} } from '@widget-factory/icons';`);
-      }
+      
 
       const mergedProps = {};
       if (primitive.props) {
@@ -66,17 +63,13 @@ function buildCodeAndMap(widgetSpec) {
 
       const propsCode = [];
       for (const [key, value] of Object.entries(mergedProps)) {
-        if (componentName === 'Icon' && key === 'name') continue;
         if (typeof value === 'string') propsCode.push(`${key}="${value}"`);
         else propsCode.push(`${key}={${JSON.stringify(value)}}`);
       }
       if (flex !== undefined) propsCode.push(`style={{ flex: ${flex} }}`);
 
       let childrenStr = '';
-      if (componentName === 'Icon' && props.name) {
-        const iconName = toPascalCase(props.name);
-        childrenStr = `<${iconName} />`;
-      } else if (content) {
+      if (content) {
         childrenStr = content;
       }
 
@@ -132,4 +125,3 @@ function toPascalCase(str) {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join('');
 }
-

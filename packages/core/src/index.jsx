@@ -1,10 +1,10 @@
-export { WidgetShell } from './WidgetShell.jsx';
-export { Text } from './Text.jsx';
-export { Icon } from './Icon.jsx';
-export { Sparkline } from './Sparkline.jsx';
-export { AppLogo } from './AppLogo.jsx';
-export { MapImage } from './MapImage.jsx';
-export { Image } from './Image.jsx';
-export { Checkbox } from './Checkbox.jsx';
+export { WidgetShell } from './primitives/WidgetShell.jsx';
+export { Text } from './primitives/Text.jsx';
+export { Icon } from './primitives/Icon.jsx';
+export { Sparkline } from './primitives/Sparkline.jsx';
+export { AppLogo } from './primitives/AppLogo.jsx';
+export { MapImage } from './primitives/MapImage.jsx';
+export { Image } from './primitives/Image.jsx';
+export { Checkbox } from './primitives/Checkbox.jsx';
 export { compileWidgetSpec, compileWidgetSpecWithMap } from './compiler.js';
 export { renderWidgetFromSpec } from './runtime-renderer.jsx';
