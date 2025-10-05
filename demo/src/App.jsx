@@ -113,6 +113,8 @@ function App() {
     const active = hoverPath || selectedPath;
     const range = active ? jsxLineMap[active] : null;
     setJsxHL(range || null);
+
+    // Auto-scroll code view to range
     if (range && jsxScrollRef.current) {
       const el = jsxScrollRef.current.querySelector(`[data-code-line="${range.startLine}"]`);
       if (el) {
@@ -122,20 +124,23 @@ function App() {
       }
     }
 
-    if (specTextareaRef.current) {
-      const textArea = specTextareaRef.current;
-      if (active && specLineMap[active]) {
-        const { start, end, lineStart } = specLineMap[active];
-        try {
-          textArea.setSelectionRange(start, end);
-          const cs = window.getComputedStyle(textArea);
-          const lineH = parseFloat(cs.lineHeight) || 20;
-          const top = Math.max(0, (lineStart - 2) * lineH);
-          textArea.scrollTo({ top, behavior: 'smooth' });
-        } catch {}
-      } else {
-        try { textArea.setSelectionRange(0, 0); } catch {}
-      }
+    // Do NOT override user's caret/selection while textarea is focused
+    const ta = specTextareaRef.current;
+    if (!ta) return;
+    const isSpecFocused = document.activeElement === ta;
+    if (isSpecFocused) return;
+
+    if (active && specLineMap[active]) {
+      const { start, end, lineStart } = specLineMap[active];
+      try {
+        ta.setSelectionRange(start, end);
+        const cs = window.getComputedStyle(ta);
+        const lineH = parseFloat(cs.lineHeight) || 20;
+        const top = Math.max(0, (lineStart - 2) * lineH);
+        ta.scrollTo({ top, behavior: 'smooth' });
+      } catch {}
+    } else {
+      // When no active highlight, keep user's caret as-is
     }
   }, [hoverPath, selectedPath, inspectMode, jsxLineMap, specLineMap]);
 
