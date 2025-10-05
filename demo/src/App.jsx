@@ -21,7 +21,7 @@ function App() {
   const [selectedExample, setSelectedExample] = useState('weatherSmallLight');
   const [editedSpec, setEditedSpec] = useState('');
   const [showComponentsModal, setShowComponentsModal] = useState(false);
-  const [inspectMode, setInspectMode] = useState(false);
+  const [inspectMode, setInspectMode] = useState(true);
   const [selectedPath, setSelectedPath] = useState(null);
   const [hoverPath, setHoverPath] = useState(null);
   const previewContainerRef = useRef(null);

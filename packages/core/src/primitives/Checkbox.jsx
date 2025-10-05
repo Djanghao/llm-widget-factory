@@ -4,10 +4,12 @@ export function Checkbox({
   size = 20,
   checked = false,
   color = '#FF3B30',
-  style = {}
+  style = {},
+  ...rest
 }) {
   return (
     <div
+      {...rest}
       style={{
         width: size,
         height: size,
@@ -37,4 +39,3 @@ export function Checkbox({
     </div>
   );
 }
-

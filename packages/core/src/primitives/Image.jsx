@@ -5,12 +5,14 @@ export function Image({
   height,
   url,
   borderRadius = 0,
-  style = {}
+  style = {},
+  ...rest
 }) {
   return (
     <img
       src={url}
       alt="Widget Image"
+      {...rest}
       style={{
         width,
         height,
@@ -23,4 +25,3 @@ export function Image({
     />
   );
 }
-

@@ -5,7 +5,8 @@ export function Sparkline({
   height = 40,
   color = '#34C759',
   data = [],
-  style = {}
+  style = {},
+  ...rest
 }) {
   const canvasRef = useRef(null);
 
@@ -49,6 +50,7 @@ export function Sparkline({
   return (
     <canvas
       ref={canvasRef}
+      {...rest}
       style={{
         width: `${width}px`,
         height: `${height}px`,
@@ -59,4 +61,3 @@ export function Sparkline({
     />
   );
 }
-

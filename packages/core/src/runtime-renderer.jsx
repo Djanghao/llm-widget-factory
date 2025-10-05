@@ -84,48 +84,41 @@ function renderNode(node, pathArr = [], inspect = false) {
 
     const style = flex !== undefined ? { flex } : undefined;
 
+    const inspectProps = inspect ? { ['data-node-path']: pathArr.join('.'), ['data-node-type']: 'leaf' } : {};
+
     if (componentName === 'Icon') {
-      const el = <Icon {...mergedProps} style={style} />;
-      if (!inspect) return el;
-      return (
-        <span style={{ display: 'contents' }} data-node-path={pathArr.join('.')} data-node-type="leaf">{el}</span>
-      );
+      const el = <Icon {...mergedProps} style={style} {...inspectProps} />;
+      return el;
     }
 
     if (componentName === 'Text') {
-      const el = <Text {...mergedProps} style={style}>{content}</Text>;
-      if (!inspect) return el;
-      return <span style={{ display: 'contents' }} data-node-path={pathArr.join('.')} data-node-type="leaf">{el}</span>;
+      const el = <Text {...mergedProps} style={style} {...inspectProps}>{content}</Text>;
+      return el;
     }
 
     if (componentName === 'Sparkline') {
-      const el = <Sparkline {...mergedProps} style={style} />;
-      if (!inspect) return el;
-      return <span style={{ display: 'contents' }} data-node-path={pathArr.join('.')} data-node-type="leaf">{el}</span>;
+      const el = <Sparkline {...mergedProps} style={style} {...inspectProps} />;
+      return el;
     }
 
     if (componentName === 'AppLogo') {
-      const el = <AppLogo {...mergedProps} style={style} />;
-      if (!inspect) return el;
-      return <span style={{ display: 'contents' }} data-node-path={pathArr.join('.')} data-node-type="leaf">{el}</span>;
+      const el = <AppLogo {...mergedProps} style={style} {...inspectProps} />;
+      return el;
     }
 
     if (componentName === 'MapImage') {
-      const el = <MapImage {...mergedProps} style={style} />;
-      if (!inspect) return el;
-      return <span style={{ display: 'contents' }} data-node-path={pathArr.join('.')} data-node-type="leaf">{el}</span>;
+      const el = <MapImage {...mergedProps} style={style} {...inspectProps} />;
+      return el;
     }
 
     if (componentName === 'Image') {
-      const el = <Image {...mergedProps} style={style} />;
-      if (!inspect) return el;
-      return <span style={{ display: 'contents' }} data-node-path={pathArr.join('.')} data-node-type="leaf">{el}</span>;
+      const el = <Image {...mergedProps} style={style} {...inspectProps} />;
+      return el;
     }
 
     if (componentName === 'Checkbox') {
-      const el = <Checkbox {...mergedProps} style={style} />;
-      if (!inspect) return el;
-      return <span style={{ display: 'contents' }} data-node-path={pathArr.join('.')} data-node-type="leaf">{el}</span>;
+      const el = <Checkbox {...mergedProps} style={style} {...inspectProps} />;
+      return el;
     }
 
     throw new Error(`Unknown component: ${componentName}`);

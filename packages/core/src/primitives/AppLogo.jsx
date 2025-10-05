@@ -4,12 +4,14 @@ export function AppLogo({
   size = 20,
   name = '',
   backgroundColor = '#007AFF',
-  style = {}
+  style = {},
+  ...rest
 }) {
   const firstLetter = name.charAt(0).toUpperCase();
 
   return (
     <div
+      {...rest}
       style={{
         width: size,
         height: size,
@@ -28,4 +30,3 @@ export function AppLogo({
     </div>
   );
 }
-

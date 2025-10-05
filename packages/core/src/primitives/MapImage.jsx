@@ -4,12 +4,14 @@ export function MapImage({
   width,
   height,
   url,
-  style = {}
+  style = {},
+  ...rest
 }) {
   return (
     <img
       src={url}
       alt="Map"
+      {...rest}
       style={{
         width,
         height,
@@ -21,4 +23,3 @@ export function MapImage({
     />
   );
 }
-
