@@ -12,7 +12,7 @@
         {
           "type": "leaf",
           "component": "Image",
-          "flex": 0,
+          "flex": "none",
           "props": {
             "width": 338,
             "height": 120,

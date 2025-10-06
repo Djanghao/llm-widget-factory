@@ -12,7 +12,7 @@
         {
           "type": "leaf",
           "component": "MapImage",
-          "flex": 0,
+          "flex": "none",
           "props": {
             "width": 338,
             "height": 158,
@@ -38,7 +38,7 @@
                 {
                   "type": "leaf",
                   "component": "Icon",
-                  "flex": 0,
+                  "flex": "none",
                   "props": {
                     "size": 40,
                     "color": "#8E8E93",
@@ -56,7 +56,7 @@
                 {
                   "type": "leaf",
                   "component": "Icon",
-                  "flex": 0,
+                  "flex": "none",
                   "props": {
                     "size": 40,
                     "color": "#FF9500",

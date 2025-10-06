@@ -38,7 +38,7 @@
                 {
                   "type": "leaf",
                   "component": "Icon",
-                  "flex": 0,
+                  "flex": "none",
                   "props": {
                     "size": 12,
                     "color": "#ffffff",
@@ -116,7 +116,7 @@
                 {
                   "type": "leaf",
                   "component": "Icon",
-                  "flex": 0,
+                  "flex": "none",
                   "props": {
                     "size": 20,
                     "color": "#ffffff",
@@ -155,7 +155,7 @@
                 {
                   "type": "leaf",
                   "component": "Icon",
-                  "flex": 0,
+                  "flex": "none",
                   "props": {
                     "size": 20,
                     "color": "#ffffff",
@@ -194,7 +194,7 @@
                 {
                   "type": "leaf",
                   "component": "Icon",
-                  "flex": 0,
+                  "flex": "none",
                   "props": {
                     "size": 20,
                     "color": "#ffffff",
@@ -233,7 +233,7 @@
                 {
                   "type": "leaf",
                   "component": "Icon",
-                  "flex": 0,
+                  "flex": "none",
                   "props": {
                     "size": 20,
                     "color": "#ffffff",
@@ -272,7 +272,7 @@
                 {
                   "type": "leaf",
                   "component": "Icon",
-                  "flex": 0,
+                  "flex": "none",
                   "props": {
                     "size": 20,
                     "color": "#ffffff",
@@ -311,7 +311,7 @@
                 {
                   "type": "leaf",
                   "component": "Icon",
-                  "flex": 0,
+                  "flex": "none",
                   "props": {
                     "size": 20,
                     "color": "#ffffff",

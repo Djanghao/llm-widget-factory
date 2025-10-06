@@ -21,7 +21,7 @@
             {
               "type": "leaf",
               "component": "Icon",
-              "flex": 0,
+              "flex": "none",
               "props": {
                 "size": 20,
                 "color": "#ffffff",

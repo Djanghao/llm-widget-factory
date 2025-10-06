@@ -31,7 +31,7 @@
             {
               "type": "leaf",
               "component": "Icon",
-              "flex": 0,
+              "flex": "none",
               "props": {
                 "size": 14,
                 "color": "#ffffff",
@@ -67,7 +67,7 @@
                 {
                   "type": "leaf",
                   "component": "Icon",
-                  "flex": 0,
+                  "flex": "none",
                   "props": {
                     "size": 24,
                     "color": "#FFD700",
