@@ -20,3 +20,15 @@ const Widget = compileWidgetSpecToComponent(spec, { inspect: true });
 - 编译器遍历树，使用显式 `props` 生成简洁的 flex 布局 JSX；渲染使用 `compileWidgetSpecToComponent`（与生成的 JSX 语义一致）。
 - `<Icon />` 通过 `@widget-factory/icons` 的 `iconsMap/metadata` 处理图标与颜色。
  - 推荐将子项伸缩写为 `flex` 组件属性（如 `<Text flex={1} />`），而不是写入 `style`；仅当遇到未建模的样式时再使用 `style`。
+
+## Fixed Styles
+- Icon：默认固定尺寸，`flex: 0 0 auto`，不缩放；可通过 `flex` 或 `flexShrink` 显式覆盖。
+- Image / MapImage：默认固定宽高，`object-fit: cover` 保持纵横比并裁剪溢出，`flex: 0 0 auto`；可显式覆盖。
+- Sparkline：使用像素宽高绘制，固定高度；暂不做自适应宽度。需要拉伸时请明确给出 `width/height` 或在父容器控制布局。
+- Text：默认流式 `flex: 0 1 auto`；需要填充剩余空间时使用 `flex="1 0 auto"`。
+
+示例：
+- 填充但不缩小：`<Text flex="1 0 auto">Title</Text>`
+- 固定图标：`<Icon size={20} />`
+- 固定图片：`<Image width={120} height={80} url="..." />`
+- 可伸缩趋势图：`<Sparkline height={40} data={[...]} />`

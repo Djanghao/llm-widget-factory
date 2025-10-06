@@ -5,6 +5,9 @@ export function AppLogo({
   name = '',
   backgroundColor = '#007AFF',
   flex,
+  flexGrow,
+  flexShrink,
+  flexBasis,
   style = {},
   ...rest
 }) {
@@ -24,8 +27,13 @@ export function AppLogo({
         fontSize: size * 0.5,
         fontWeight: 600,
         color: '#ffffff',
+        flex: '0 0 auto',
+        flexShrink: 0,
         ...style,
-        ...(flex !== undefined ? { flex } : {})
+        ...(flex !== undefined ? { flex } : {}),
+        ...(flexGrow !== undefined ? { flexGrow } : {}),
+        ...(flexShrink !== undefined ? { flexShrink } : {}),
+        ...(flexBasis !== undefined ? { flexBasis } : {})
       }}
     >
       {firstLetter}

@@ -8,6 +8,9 @@ export function Text({
   lineHeight = 1.3,
   children,
   flex,
+  flexGrow,
+  flexShrink,
+  flexBasis,
   style = {},
   ...rest
 }) {
@@ -21,7 +24,10 @@ export function Text({
         fontWeight,
         lineHeight,
         ...style,
-        ...(flex !== undefined ? { flex } : {})
+        ...(flex !== undefined ? { flex } : {}),
+        ...(flexGrow !== undefined ? { flexGrow } : {}),
+        ...(flexShrink !== undefined ? { flexShrink } : {}),
+        ...(flexBasis !== undefined ? { flexBasis } : {})
       }}
     >
       {children}

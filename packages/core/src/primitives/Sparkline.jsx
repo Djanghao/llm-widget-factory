@@ -6,6 +6,9 @@ export function Sparkline({
   color = '#34C759',
   data = [],
   flex,
+  flexGrow,
+  flexShrink,
+  flexBasis,
   style = {},
   ...rest
 }) {
@@ -58,7 +61,10 @@ export function Sparkline({
         display: 'block',
         flexShrink: 0,
         ...style,
-        ...(flex !== undefined ? { flex } : {})
+        ...(flex !== undefined ? { flex } : {}),
+        ...(flexGrow !== undefined ? { flexGrow } : {}),
+        ...(flexShrink !== undefined ? { flexShrink } : {}),
+        ...(flexBasis !== undefined ? { flexBasis } : {})
       }}
     />
   );

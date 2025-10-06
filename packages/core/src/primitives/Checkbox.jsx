@@ -5,6 +5,9 @@ export function Checkbox({
   checked = false,
   color = '#FF3B30',
   flex,
+  flexGrow,
+  flexShrink,
+  flexBasis,
   style = {},
   ...rest
 }) {
@@ -20,8 +23,13 @@ export function Checkbox({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        flex: '0 0 auto',
+        flexShrink: 0,
         ...style,
-        ...(flex !== undefined ? { flex } : {})
+        ...(flex !== undefined ? { flex } : {}),
+        ...(flexGrow !== undefined ? { flexGrow } : {}),
+        ...(flexShrink !== undefined ? { flexShrink } : {}),
+        ...(flexBasis !== undefined ? { flexBasis } : {})
       }}
     >
       {checked && (

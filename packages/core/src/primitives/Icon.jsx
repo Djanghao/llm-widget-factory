@@ -1,7 +1,7 @@
 import React from 'react'
 import { iconsMap, metadata as iconsMetadata } from '@widget-factory/icons'
 
-export function Icon({ name, size = 20, color = '#000000', flex, style = {}, ...rest }) {
+export function Icon({ name, size = 20, color = '#000000', flex, flexGrow, flexShrink, flexBasis, style = {}, ...rest }) {
   const IconComp = name ? iconsMap?.[name] : null
   const isSingle = name && iconsMetadata && iconsMetadata[name] ? !!iconsMetadata[name].isSingleColor : false
   const applyColor = IconComp ? isSingle : true
@@ -11,10 +11,14 @@ export function Icon({ name, size = 20, color = '#000000', flex, style = {}, ...
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    flex: '0 0 auto',
     flexShrink: 0,
     ...(applyColor ? { color } : {}),
     ...style,
-    ...(flex !== undefined ? { flex } : {})
+    ...(flex !== undefined ? { flex } : {}),
+    ...(flexGrow !== undefined ? { flexGrow } : {}),
+    ...(flexShrink !== undefined ? { flexShrink } : {}),
+    ...(flexBasis !== undefined ? { flexBasis } : {})
   }
   if (!IconComp) {
     return (

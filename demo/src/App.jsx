@@ -604,6 +604,28 @@ function App() {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 20 }}>
+              <div style={{ backgroundColor: '#2c2c2e', borderRadius: 12, padding: 24 }}>
+                <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f5f5f7' }}>
+                  Flex Usage
+                </h3>
+                <div style={{ display: 'grid', gap: 10 }}>
+                  <div style={{ fontSize: 13, color: '#98989d' }}>
+                    Use CSS-like shorthand or longhand. Longhand overrides shorthand.
+                  </div>
+                  <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace' }}>
+                    Shorthand: flex: 0 | "0 0 auto" | "1 0 auto" | "1 1 auto"
+                  </div>
+                  <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace' }}>
+                    Longhand: flexGrow / flexShrink / flexBasis (overrides flex)
+                  </div>
+                  <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace' }}>
+                    Text default: 0 1 auto. Fixed media (Icon/Image/MapImage/AppLogo/Checkbox) default: none (0 0 auto).
+                  </div>
+                  <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace' }}>
+                    Sparkline uses pixel width/height (no responsive); control size via width/height or parent layout.
+                  </div>
+                </div>
+              </div>
               
               <div style={{ backgroundColor: '#2c2c2e', borderRadius: 12, padding: 24 }}>
                 <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f5f5f7' }}>
@@ -620,6 +642,9 @@ function App() {
                     <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace' }}>
                       Props: fontSize (default: 18), color, fontWeight (default: 400), align
                     </div>
+                    <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace', marginTop: 4 }}>
+                      Default flex: 0 1 auto. Fill space: flex="1 0 auto".
+                    </div>
                   </div>
                   <div>
                     <div style={{ fontSize: 14, color: '#f5f5f7', fontWeight: 600, marginBottom: 8 }}>
@@ -631,6 +656,9 @@ function App() {
                     <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace' }}>
                       Props: fontSize (default: 13), color (#666666), fontWeight (default: 400), align
                     </div>
+                    <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace', marginTop: 4 }}>
+                      Default flex: 0 1 auto.
+                    </div>
                   </div>
                   <div>
                     <div style={{ fontSize: 14, color: '#f5f5f7', fontWeight: 600, marginBottom: 8 }}>
@@ -641,6 +669,9 @@ function App() {
                     </div>
                     <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace' }}>
                       Props: fontSize (default: 32), color, fontWeight (default: 600), align
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace', marginTop: 4 }}>
+                      Default flex: 0 1 auto.
                     </div>
                   </div>
                 </div>
@@ -662,6 +693,9 @@ function App() {
                     <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace', marginBottom: 8 }}>
                       Props: size (default: 20), color, name (required)
                     </div>
+                    <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace' }}>
+                      Default flex: none (0 0 auto). Use flex to override if needed.
+                    </div>
                     <div style={{ fontSize: 12, color: '#6e6e73' }}>
                       Available: heart.fill, star.fill, circle.fill, checkmark.circle.fill, cloud.sun.fill, flame.fill, bolt.fill, calendar
                     </div>
@@ -676,6 +710,9 @@ function App() {
                     <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace' }}>
                       Props: width (required), height (required), url (required), borderRadius (default: 0)
                     </div>
+                    <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace', marginTop: 4 }}>
+                      objectFit: cover, Default flex: none (0 0 auto).
+                    </div>
                   </div>
                   <div>
                     <div style={{ fontSize: 14, color: '#f5f5f7', fontWeight: 600, marginBottom: 8 }}>
@@ -687,6 +724,9 @@ function App() {
                     <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace' }}>
                       Props: width (required), height (required), url (required)
                     </div>
+                    <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace', marginTop: 4 }}>
+                      objectFit: cover, Default flex: none (0 0 auto).
+                    </div>
                   </div>
                   <div>
                     <div style={{ fontSize: 14, color: '#f5f5f7', fontWeight: 600, marginBottom: 8 }}>
@@ -697,6 +737,9 @@ function App() {
                     </div>
                     <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace' }}>
                       Props: size (default: 20), name (required), backgroundColor (default: #007AFF)
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace', marginTop: 4 }}>
+                      Default flex: none (0 0 auto).
                     </div>
                   </div>
                 </div>
@@ -718,6 +761,9 @@ function App() {
                     <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace' }}>
                       Props: width (default: 80), height (default: 40), color (default: #34C759), data (required array)
                     </div>
+                    <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace', marginTop: 4 }}>
+                      Uses pixel width/height; not responsive by default. Control layout via parent or width.
+                    </div>
                   </div>
                 </div>
               </div>
@@ -737,6 +783,9 @@ function App() {
                     </div>
                     <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace' }}>
                       Props: size (default: 20), checked (default: false), color (default: #FF3B30)
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6e6e73', fontFamily: 'Monaco, monospace', marginTop: 4 }}>
+                      Default flex: none (0 0 auto).
                     </div>
                   </div>
                 </div>

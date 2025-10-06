@@ -6,6 +6,9 @@ export function Image({
   url,
   borderRadius = 0,
   flex,
+  flexGrow,
+  flexShrink,
+  flexBasis,
   style = {},
   ...rest
 }) {
@@ -20,9 +23,13 @@ export function Image({
         borderRadius,
         objectFit: 'cover',
         display: 'block',
+        flex: '0 0 auto',
         flexShrink: 0,
         ...style,
-        ...(flex !== undefined ? { flex } : {})
+        ...(flex !== undefined ? { flex } : {}),
+        ...(flexGrow !== undefined ? { flexGrow } : {}),
+        ...(flexShrink !== undefined ? { flexShrink } : {}),
+        ...(flexBasis !== undefined ? { flexBasis } : {})
       }}
     />
   );
