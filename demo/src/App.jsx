@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { compileWidgetSpecWithMap, renderWidgetFromSpec } from '@widget-factory/core';
+import { compileWidgetSpecWithMap, compileWidgetSpecToComponent } from '@widget-factory/core';
 import TreeView from './TreeView.jsx';
 import HighlightOverlay from './HighlightOverlay.jsx';
 import SpecHighlightOverlay from './SpecHighlightOverlay.jsx';
@@ -70,7 +70,8 @@ function App() {
     try {
       const spec = editedSpec ? JSON.parse(editedSpec) : currentExample.spec;
       const { code, map } = compileWidgetSpecWithMap(spec);
-      const WidgetComponent = renderWidgetFromSpec(spec, { inspect: inspectMode });
+      // Use compiled component for preview to follow: spec -> JSX -> render
+      const WidgetComponent = compileWidgetSpecToComponent(spec, { inspect: inspectMode });
       return { generatedCode: code, PreviewWidget: WidgetComponent, treeRoot: spec?.widget?.root, _jsxMap: map };
     } catch (error) {
       return {
@@ -611,7 +612,7 @@ function App() {
                 <div style={{ display: 'grid', gap: 16 }}>
                   <div>
                     <div style={{ fontSize: 14, color: '#f5f5f7', fontWeight: 600, marginBottom: 8 }}>
-                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>text.title</code> - Title/Heading
+                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>Text</code> - Title/Heading
                     </div>
                     <div style={{ fontSize: 13, color: '#98989d', marginBottom: 8 }}>
                       Main headings and important text
@@ -622,7 +623,7 @@ function App() {
                   </div>
                   <div>
                     <div style={{ fontSize: 14, color: '#f5f5f7', fontWeight: 600, marginBottom: 8 }}>
-                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>text.label</code> - Label
+                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>Text</code> - Label
                     </div>
                     <div style={{ fontSize: 13, color: '#98989d', marginBottom: 8 }}>
                       Secondary text and labels
@@ -633,7 +634,7 @@ function App() {
                   </div>
                   <div>
                     <div style={{ fontSize: 14, color: '#f5f5f7', fontWeight: 600, marginBottom: 8 }}>
-                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>number.metric</code> - Metric
+                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>Text</code> - Metric
                     </div>
                     <div style={{ fontSize: 13, color: '#98989d', marginBottom: 8 }}>
                       Numbers with tabular figures
@@ -653,7 +654,7 @@ function App() {
                 <div style={{ display: 'grid', gap: 16 }}>
                   <div>
                     <div style={{ fontSize: 14, color: '#f5f5f7', fontWeight: 600, marginBottom: 8 }}>
-                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>media.icon</code> - Icon
+                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>Icon</code> - Icon
                     </div>
                     <div style={{ fontSize: 13, color: '#98989d', marginBottom: 8 }}>
                       SF Symbols style icons
@@ -667,7 +668,7 @@ function App() {
                   </div>
                   <div>
                     <div style={{ fontSize: 14, color: '#f5f5f7', fontWeight: 600, marginBottom: 8 }}>
-                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>media.image</code> - Image
+                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>Image</code> - Image
                     </div>
                     <div style={{ fontSize: 13, color: '#98989d', marginBottom: 8 }}>
                       Display images from URLs
@@ -678,7 +679,7 @@ function App() {
                   </div>
                   <div>
                     <div style={{ fontSize: 14, color: '#f5f5f7', fontWeight: 600, marginBottom: 8 }}>
-                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>media.map</code> - Map Image
+                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>MapImage</code> - Map Image
                     </div>
                     <div style={{ fontSize: 13, color: '#98989d', marginBottom: 8 }}>
                       Display map images
@@ -689,7 +690,7 @@ function App() {
                   </div>
                   <div>
                     <div style={{ fontSize: 14, color: '#f5f5f7', fontWeight: 600, marginBottom: 8 }}>
-                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>media.applogo</code> - App Logo
+                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>AppLogo</code> - App Logo
                     </div>
                     <div style={{ fontSize: 13, color: '#98989d', marginBottom: 8 }}>
                       App icon with first letter
@@ -709,7 +710,7 @@ function App() {
                 <div style={{ display: 'grid', gap: 16 }}>
                   <div>
                     <div style={{ fontSize: 14, color: '#f5f5f7', fontWeight: 600, marginBottom: 8 }}>
-                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>chart.sparkline</code> - Sparkline
+                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>Sparkline</code> - Sparkline
                     </div>
                     <div style={{ fontSize: 13, color: '#98989d', marginBottom: 8 }}>
                       Small line chart for trends
@@ -729,7 +730,7 @@ function App() {
                 <div style={{ display: 'grid', gap: 16 }}>
                   <div>
                     <div style={{ fontSize: 14, color: '#f5f5f7', fontWeight: 600, marginBottom: 8 }}>
-                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>control.checkbox</code> - Checkbox
+                      <code style={{ color: '#FF9500', backgroundColor: '#3a3a3c', padding: '2px 6px', borderRadius: 4 }}>Checkbox</code> - Checkbox
                     </div>
                     <div style={{ fontSize: 13, color: '#98989d', marginBottom: 8 }}>
                       Circular checkbox

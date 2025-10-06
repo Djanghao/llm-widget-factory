@@ -2,7 +2,6 @@
   "primitives": {
     "Text": {
       "id": "Text",
-      "kind": "text.title",
       "props": {
         "fontSize": { "type": "number", "unit": "px", "default": 18 },
         "color": { "type": "color", "default": "#000000" },
@@ -11,64 +10,20 @@
         "lineHeight": { "type": "number", "default": 1.3 }
       },
       "sml": { "S": true, "M": true, "L": true },
-      "flexHints": {
-        "fixed": false,
-        "defaultFlex": 0,
-        "defaultGap": 8
-      }
-    },
-    "Text_Label": {
-      "id": "Text",
-      "kind": "text.label",
-      "props": {
-        "fontSize": { "type": "number", "unit": "px", "default": 13 },
-        "color": { "type": "color", "default": "#666666" },
-        "align": { "type": "enum", "values": ["left", "center", "right", "start", "end"], "default": "left" },
-        "fontWeight": { "type": "number", "default": 400 },
-        "lineHeight": { "type": "number", "default": 1.3 }
-      },
-      "sml": { "S": true, "M": true, "L": true },
-      "flexHints": {
-        "fixed": false,
-        "defaultFlex": 0,
-        "defaultGap": 4
-      }
-    },
-    "Text_Metric": {
-      "id": "Text",
-      "kind": "number.metric",
-      "props": {
-        "fontSize": { "type": "number", "unit": "px", "default": 32 },
-        "color": { "type": "color", "default": "#000000" },
-        "align": { "type": "enum", "values": ["left", "center", "right", "start", "end"], "default": "left" },
-        "fontWeight": { "type": "number", "default": 600 },
-        "lineHeight": { "type": "number", "default": 1 }
-      },
-      "sml": { "S": true, "M": true, "L": true },
-      "flexHints": {
-        "fixed": false,
-        "defaultFlex": 0,
-        "defaultGap": 8
-      }
+      "flexHints": { "fixed": false, "defaultFlex": 0, "defaultGap": 8 }
     },
     "Icon": {
       "id": "Icon",
-      "kind": "media.icon",
       "props": {
         "size": { "type": "number", "unit": "px", "default": 20 },
         "color": { "type": "color", "default": "#000000" },
         "name": { "type": "string", "required": true }
       },
       "sml": { "S": true, "M": true, "L": true },
-      "flexHints": {
-        "fixed": true,
-        "defaultFlex": 0,
-        "defaultGap": 8
-      }
+      "flexHints": { "fixed": true, "defaultFlex": 0, "defaultGap": 8 }
     },
     "Sparkline": {
       "id": "Sparkline",
-      "kind": "chart.sparkline",
       "props": {
         "width": { "type": "number", "unit": "px", "default": 80 },
         "height": { "type": "number", "unit": "px", "default": 40 },
@@ -76,45 +31,30 @@
         "data": { "type": "array", "required": true }
       },
       "sml": { "S": true, "M": true, "L": true },
-      "flexHints": {
-        "fixed": true,
-        "defaultFlex": 0,
-        "defaultGap": 8
-      }
+      "flexHints": { "fixed": true, "defaultFlex": 0, "defaultGap": 8 }
     },
     "AppLogo": {
       "id": "AppLogo",
-      "kind": "media.applogo",
       "props": {
         "size": { "type": "number", "unit": "px", "default": 20 },
         "name": { "type": "string", "required": true },
         "backgroundColor": { "type": "color", "default": "#007AFF" }
       },
       "sml": { "S": true, "M": true, "L": true },
-      "flexHints": {
-        "fixed": true,
-        "defaultFlex": 0,
-        "defaultGap": 8
-      }
+      "flexHints": { "fixed": true, "defaultFlex": 0, "defaultGap": 8 }
     },
     "MapImage": {
       "id": "MapImage",
-      "kind": "media.map",
       "props": {
         "width": { "type": "number", "unit": "px", "required": true },
         "height": { "type": "number", "unit": "px", "required": true },
         "url": { "type": "string", "required": true }
       },
       "sml": { "S": true, "M": true, "L": true },
-      "flexHints": {
-        "fixed": true,
-        "defaultFlex": 0,
-        "defaultGap": 0
-      }
+      "flexHints": { "fixed": true, "defaultFlex": 0, "defaultGap": 0 }
     },
     "Image": {
       "id": "Image",
-      "kind": "media.image",
       "props": {
         "width": { "type": "number", "unit": "px", "required": true },
         "height": { "type": "number", "unit": "px", "required": true },
@@ -122,26 +62,17 @@
         "borderRadius": { "type": "number", "unit": "px", "default": 0 }
       },
       "sml": { "S": true, "M": true, "L": true },
-      "flexHints": {
-        "fixed": true,
-        "defaultFlex": 0,
-        "defaultGap": 0
-      }
+      "flexHints": { "fixed": true, "defaultFlex": 0, "defaultGap": 0 }
     },
     "Checkbox": {
       "id": "Checkbox",
-      "kind": "control.checkbox",
       "props": {
         "size": { "type": "number", "unit": "px", "default": 20 },
         "checked": { "type": "boolean", "default": false },
         "color": { "type": "color", "default": "#FF3B30" }
       },
       "sml": { "S": true, "M": true, "L": true },
-      "flexHints": {
-        "fixed": true,
-        "defaultFlex": 0,
-        "defaultGap": 8
-      }
+      "flexHints": { "fixed": true, "defaultFlex": 0, "defaultGap": 8 }
     }
   },
   "containers": {

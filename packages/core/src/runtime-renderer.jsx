@@ -7,7 +7,7 @@ import { AppLogo } from './primitives/AppLogo.jsx';
 import { MapImage } from './primitives/MapImage.jsx';
 import { Image } from './primitives/Image.jsx';
 import { Checkbox } from './primitives/Checkbox.jsx';
-import registry from '../primitives-registry.json';
+// kind is deprecated; specs must use explicit `component`
 
 function renderNode(node, pathArr = [], inspect = false) {
   if (node.type === 'container') {
@@ -63,61 +63,51 @@ function renderNode(node, pathArr = [], inspect = false) {
   }
 
   if (node.type === 'leaf') {
-    const { kind, props = {}, flex, content } = node;
+    const { component, props = {}, flex, content } = node;
 
-    const primitive = Object.values(registry.primitives).find(p => p.kind === kind);
-    if (!primitive) {
-      throw new Error(`Unknown primitive kind: ${kind}`);
+    // Resolve component name from explicit 'component' only
+    const componentName = component;
+    if (!componentName) {
+      throw new Error('Invalid leaf node: missing component (kind is deprecated).');
     }
 
-    const componentName = primitive.id;
-
-    const mergedProps = {};
-    if (primitive.props) {
-      for (const [key, propDef] of Object.entries(primitive.props)) {
-        if (propDef.default !== undefined) {
-          mergedProps[key] = propDef.default;
-        }
-      }
-    }
-    Object.assign(mergedProps, props);
-
-    const style = flex !== undefined ? { flex } : undefined;
+    // Rely solely on explicit props from spec
+    const mergedProps = { ...props };
 
     const inspectProps = inspect ? { ['data-node-path']: pathArr.join('.'), ['data-node-type']: 'leaf' } : {};
 
     if (componentName === 'Icon') {
-      const el = <Icon {...mergedProps} style={style} {...inspectProps} />;
+      const el = <Icon {...mergedProps} flex={flex} {...inspectProps} />;
       return el;
     }
 
     if (componentName === 'Text') {
-      const el = <Text {...mergedProps} style={style} {...inspectProps}>{content}</Text>;
+      const el = <Text {...mergedProps} flex={flex} {...inspectProps}>{content}</Text>;
       return el;
     }
 
     if (componentName === 'Sparkline') {
-      const el = <Sparkline {...mergedProps} style={style} {...inspectProps} />;
+      const el = <Sparkline {...mergedProps} flex={flex} {...inspectProps} />;
       return el;
     }
 
     if (componentName === 'AppLogo') {
-      const el = <AppLogo {...mergedProps} style={style} {...inspectProps} />;
+      const el = <AppLogo {...mergedProps} flex={flex} {...inspectProps} />;
       return el;
     }
 
     if (componentName === 'MapImage') {
-      const el = <MapImage {...mergedProps} style={style} {...inspectProps} />;
+      const el = <MapImage {...mergedProps} flex={flex} {...inspectProps} />;
       return el;
     }
 
     if (componentName === 'Image') {
-      const el = <Image {...mergedProps} style={style} {...inspectProps} />;
+      const el = <Image {...mergedProps} flex={flex} {...inspectProps} />;
       return el;
     }
 
     if (componentName === 'Checkbox') {
-      const el = <Checkbox {...mergedProps} style={style} {...inspectProps} />;
+      const el = <Checkbox {...mergedProps} flex={flex} {...inspectProps} />;
       return el;
     }
 

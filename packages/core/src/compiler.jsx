@@ -1,4 +1,13 @@
-import registry from '../primitives-registry.json' assert { type: 'json' };
+import React from 'react';
+// Import primitives for the compiled component rendering path
+import { WidgetShell } from './primitives/WidgetShell.jsx';
+import { Text } from './primitives/Text.jsx';
+import { Icon } from './primitives/Icon.jsx';
+import { Sparkline } from './primitives/Sparkline.jsx';
+import { AppLogo } from './primitives/AppLogo.jsx';
+import { MapImage } from './primitives/MapImage.jsx';
+import { Image } from './primitives/Image.jsx';
+import { Checkbox } from './primitives/Checkbox.jsx';
 
 function buildCodeAndMap(widgetSpec) {
   const imports = new Set();
@@ -41,32 +50,23 @@ function buildCodeAndMap(widgetSpec) {
     }
 
     if (node.type === 'leaf') {
-      const { kind, props = {}, flex, content } = node;
+      const { component, props = {}, flex, content } = node;
 
-      const primitive = Object.values(registry.primitives).find(p => p.kind === kind);
-      if (!primitive) {
-        throw new Error(`Unknown primitive kind: ${kind}`);
+      const componentName = component;
+      if (!componentName) {
+        throw new Error('Invalid leaf node: missing component (kind is deprecated).');
       }
-
-      const componentName = primitive.id;
       imports.add(`import { ${componentName} } from '@widget-factory/core';`);
 
-      
-
-      const mergedProps = {};
-      if (primitive.props) {
-        for (const [key, propDef] of Object.entries(primitive.props)) {
-          if (propDef.default !== undefined) mergedProps[key] = propDef.default;
-        }
-      }
-      Object.assign(mergedProps, props);
+      // Rely solely on provided props
+      const mergedProps = { ...props };
 
       const propsCode = [];
       for (const [key, value] of Object.entries(mergedProps)) {
         if (typeof value === 'string') propsCode.push(`${key}="${value}"`);
         else propsCode.push(`${key}={${JSON.stringify(value)}}`);
       }
-      if (flex !== undefined) propsCode.push(`style={{ flex: ${flex} }}`);
+      if (flex !== undefined) propsCode.push(`flex={${flex}}`);
 
       let childrenStr = '';
       if (content) {
@@ -122,6 +122,79 @@ export function compileWidgetSpec(widgetSpec) {
 
 export function compileWidgetSpecWithMap(widgetSpec) {
   return buildCodeAndMap(widgetSpec);
+}
+
+// New: compile spec into a live React component (props-only, kind deprecated)
+export function compileWidgetSpecToComponent(widgetSpec, options = {}) {
+  if (!widgetSpec.widget?.root) {
+    throw new Error('Invalid widget spec: missing widget.root');
+  }
+  const { inspect = false } = options;
+
+  function renderNode(node, pathArr = []) {
+    if (node.type === 'container') {
+      const { direction = 'row', gap = 8, padding, alignMain, alignCross, flex, backgroundColor, children = [] } = node;
+      const styles = {
+        display: 'flex',
+        flexDirection: direction === 'col' ? 'column' : 'row'
+      };
+      if (gap) styles.gap = gap;
+      if (padding) styles.padding = padding;
+      if (flex !== undefined) styles.flex = flex;
+      if (backgroundColor) styles.backgroundColor = backgroundColor;
+
+      if (alignMain) {
+        const alignMap = { start: 'flex-start', end: 'flex-end', center: 'center', between: 'space-between' };
+        styles.justifyContent = alignMap[alignMain] || alignMain;
+      }
+      if (alignCross) {
+        const alignMap = { start: 'flex-start', end: 'flex-end', center: 'center' };
+        styles.alignItems = alignMap[alignCross] || alignCross;
+      }
+
+      const wrapperProps = inspect ? { ['data-node-path']: pathArr.join('.'), ['data-node-type']: 'container' } : {};
+      return (
+        <div style={styles} {...wrapperProps}>
+          {children.map((child, index) => (
+            <React.Fragment key={index}>{renderNode(child, pathArr.concat(index))}</React.Fragment>
+          ))}
+        </div>
+      );
+    }
+
+    if (node.type === 'leaf') {
+      const { component, props = {}, flex, content } = node;
+      const componentName = component;
+      if (!componentName) throw new Error('Invalid leaf node: missing component (kind is deprecated).');
+
+      const mergedProps = { ...props };
+      const flexProp = flex;
+      const inspectProps = inspect ? { ['data-node-path']: pathArr.join('.'), ['data-node-type']: 'leaf' } : {};
+
+      if (componentName === 'Icon') return <Icon {...mergedProps} flex={flexProp} {...inspectProps} />;
+      if (componentName === 'Text') return <Text {...mergedProps} flex={flexProp} {...inspectProps}>{content}</Text>;
+      if (componentName === 'Sparkline') return <Sparkline {...mergedProps} flex={flexProp} {...inspectProps} />;
+      if (componentName === 'AppLogo') return <AppLogo {...mergedProps} flex={flexProp} {...inspectProps} />;
+      if (componentName === 'MapImage') return <MapImage {...mergedProps} flex={flexProp} {...inspectProps} />;
+      if (componentName === 'Image') return <Image {...mergedProps} flex={flexProp} {...inspectProps} />;
+      if (componentName === 'Checkbox') return <Checkbox {...mergedProps} flex={flexProp} {...inspectProps} />;
+      throw new Error(`Unknown component: ${componentName}`);
+    }
+
+    return null;
+  }
+
+  const { backgroundColor, borderRadius, padding, width, height } = widgetSpec.widget;
+  return function WidgetComponent() {
+    const shellStyle = {};
+    if (width !== undefined) shellStyle.width = width;
+    if (height !== undefined) shellStyle.height = height;
+    return (
+      <WidgetShell backgroundColor={backgroundColor} borderRadius={borderRadius} padding={padding} style={shellStyle}>
+        {renderNode(widgetSpec.widget.root, ['0'])}
+      </WidgetShell>
+    );
+  };
 }
 
 function toPascalCase(str) {

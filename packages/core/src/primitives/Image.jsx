@@ -5,6 +5,7 @@ export function Image({
   height,
   url,
   borderRadius = 0,
+  flex,
   style = {},
   ...rest
 }) {
@@ -20,7 +21,8 @@ export function Image({
         objectFit: 'cover',
         display: 'block',
         flexShrink: 0,
-        ...style
+        ...style,
+        ...(flex !== undefined ? { flex } : {})
       }}
     />
   );

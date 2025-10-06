@@ -11,7 +11,7 @@
       "children": [
         {
           "type": "leaf",
-          "kind": "media.image",
+          "component": "Image",
           "flex": 0,
           "props": {
             "width": 338,
@@ -30,7 +30,7 @@
           "children": [
             {
               "type": "leaf",
-              "kind": "text.title",
+              "component": "Text",
               "flex": 1,
               "props": {
                 "fontSize": 17,
@@ -41,7 +41,7 @@
             },
             {
               "type": "leaf",
-              "kind": "text.label",
+              "component": "Text",
               "flex": 0,
               "props": {
                 "fontSize": 15,

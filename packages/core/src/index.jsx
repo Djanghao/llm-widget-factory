@@ -6,5 +6,6 @@ export { AppLogo } from './primitives/AppLogo.jsx';
 export { MapImage } from './primitives/MapImage.jsx';
 export { Image } from './primitives/Image.jsx';
 export { Checkbox } from './primitives/Checkbox.jsx';
-export { compileWidgetSpec, compileWidgetSpecWithMap } from './compiler.js';
+export { compileWidgetSpec, compileWidgetSpecWithMap } from './compiler.jsx';
+export { compileWidgetSpecToComponent } from './compiler.jsx';
 export { renderWidgetFromSpec } from './runtime-renderer.jsx';

@@ -20,7 +20,7 @@
           "children": [
             {
               "type": "leaf",
-              "kind": "media.icon",
+              "component": "Icon",
               "flex": 0,
               "props": {
                 "size": 20,
@@ -30,7 +30,7 @@
             },
             {
               "type": "leaf",
-              "kind": "text.title",
+              "component": "Text",
               "flex": 1,
               "props": {
                 "fontSize": 16,
@@ -50,7 +50,7 @@
           "children": [
             {
               "type": "leaf",
-              "kind": "text.title",
+              "component": "Text",
               "flex": 0,
               "props": {
                 "fontSize": 16,
@@ -62,7 +62,7 @@
             },
             {
               "type": "leaf",
-              "kind": "text.label",
+              "component": "Text",
               "flex": 0,
               "props": {
                 "fontSize": 14,

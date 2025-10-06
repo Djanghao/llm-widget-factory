@@ -75,7 +75,7 @@ function TreeNode({ node, depth = 0, path = '0', selectedPath, onSelect, onHover
 
   const label = isContainer
     ? `container`
-    : (node?.kind || 'leaf');
+    : (node?.component || 'leaf');
 
   const meta = isContainer
     ? `${node?.direction || 'row'}${node?.children ? ` • ${node.children.length}` : ''}`

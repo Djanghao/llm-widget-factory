@@ -11,7 +11,7 @@
       "children": [
         {
           "type": "leaf",
-          "kind": "media.map",
+          "component": "MapImage",
           "flex": 0,
           "props": {
             "width": 338,
@@ -37,7 +37,7 @@
               "children": [
                 {
                   "type": "leaf",
-                  "kind": "media.icon",
+                  "component": "Icon",
                   "flex": 0,
                   "props": {
                     "size": 40,
@@ -55,7 +55,7 @@
               "children": [
                 {
                   "type": "leaf",
-                  "kind": "media.icon",
+                  "component": "Icon",
                   "flex": 0,
                   "props": {
                     "size": 40,

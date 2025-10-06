@@ -12,7 +12,7 @@
       "children": [
         {
           "type": "leaf",
-          "kind": "text.label",
+          "component": "Text",
           "flex": 0,
           "props": {
             "fontSize": 12,
@@ -23,7 +23,7 @@
         },
         {
           "type": "leaf",
-          "kind": "number.metric",
+          "component": "Text",
           "flex": 0,
           "props": {
             "fontSize": 72,
@@ -46,7 +46,7 @@
               "children": [
                 {
                   "type": "leaf",
-                  "kind": "text.label",
+                  "component": "Text",
                   "flex": 0,
                   "props": {
                     "fontSize": 4,
@@ -64,7 +64,7 @@
               "children": [
                 {
                   "type": "leaf",
-                  "kind": "text.title",
+                  "component": "Text",
                   "flex": 0,
                   "props": {
                     "fontSize": 14,
@@ -75,7 +75,7 @@
                 },
                 {
                   "type": "leaf",
-                  "kind": "text.label",
+                  "component": "Text",
                   "flex": 0,
                   "props": {
                     "fontSize": 13,
@@ -85,7 +85,7 @@
                 },
                 {
                   "type": "leaf",
-                  "kind": "text.label",
+                  "component": "Text",
                   "flex": 0,
                   "props": {
                     "fontSize": 13,

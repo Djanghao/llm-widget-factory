@@ -7,6 +7,7 @@ export function Text({
   fontWeight = 400,
   lineHeight = 1.3,
   children,
+  flex,
   style = {},
   ...rest
 }) {
@@ -19,7 +20,8 @@ export function Text({
         textAlign: align,
         fontWeight,
         lineHeight,
-        ...style
+        ...style,
+        ...(flex !== undefined ? { flex } : {})
       }}
     >
       {children}

@@ -4,6 +4,7 @@ export function AppLogo({
   size = 20,
   name = '',
   backgroundColor = '#007AFF',
+  flex,
   style = {},
   ...rest
 }) {
@@ -23,7 +24,8 @@ export function AppLogo({
         fontSize: size * 0.5,
         fontWeight: 600,
         color: '#ffffff',
-        ...style
+        ...style,
+        ...(flex !== undefined ? { flex } : {})
       }}
     >
       {firstLetter}

@@ -12,7 +12,7 @@
       "children": [
         {
           "type": "leaf",
-          "kind": "text.label",
+          "component": "Text",
           "flex": 0,
           "props": {
             "fontSize": 11,
@@ -23,7 +23,7 @@
         },
         {
           "type": "leaf",
-          "kind": "number.metric",
+          "component": "Text",
           "flex": 0,
           "props": {
             "fontSize": 64,
@@ -48,7 +48,7 @@
               "children": [
                 {
                   "type": "leaf",
-                  "kind": "text.label",
+                  "component": "Text",
                   "flex": 0,
                   "props": {
                     "fontSize": 3,
@@ -64,7 +64,7 @@
                   "children": [
                     {
                       "type": "leaf",
-                      "kind": "text.label",
+                      "component": "Text",
                       "flex": 0,
                       "props": {
                         "fontSize": 11,
@@ -75,7 +75,7 @@
                     },
                     {
                       "type": "leaf",
-                      "kind": "text.label",
+                      "component": "Text",
                       "flex": 0,
                       "props": {
                         "fontSize": 10,
@@ -97,7 +97,7 @@
               "children": [
                 {
                   "type": "leaf",
-                  "kind": "text.label",
+                  "component": "Text",
                   "flex": 0,
                   "props": {
                     "fontSize": 3,
@@ -113,7 +113,7 @@
                   "children": [
                     {
                       "type": "leaf",
-                      "kind": "text.label",
+                      "component": "Text",
                       "flex": 0,
                       "props": {
                         "fontSize": 11,
@@ -124,7 +124,7 @@
                     },
                     {
                       "type": "leaf",
-                      "kind": "text.label",
+                      "component": "Text",
                       "flex": 0,
                       "props": {
                         "fontSize": 10,

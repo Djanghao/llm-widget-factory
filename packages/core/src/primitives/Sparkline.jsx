@@ -5,6 +5,7 @@ export function Sparkline({
   height = 40,
   color = '#34C759',
   data = [],
+  flex,
   style = {},
   ...rest
 }) {
@@ -56,7 +57,8 @@ export function Sparkline({
         height: `${height}px`,
         display: 'block',
         flexShrink: 0,
-        ...style
+        ...style,
+        ...(flex !== undefined ? { flex } : {})
       }}
     />
   );

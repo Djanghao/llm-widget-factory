@@ -4,6 +4,7 @@ export function MapImage({
   width,
   height,
   url,
+  flex,
   style = {},
   ...rest
 }) {
@@ -18,7 +19,8 @@ export function MapImage({
         objectFit: 'cover',
         display: 'block',
         flexShrink: 0,
-        ...style
+        ...style,
+        ...(flex !== undefined ? { flex } : {})
       }}
     />
   );
