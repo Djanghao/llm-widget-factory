@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { compileWidgetSpecWithMap, compileWidgetSpecToComponent } from '@widget-factory/core';
+import { compileWidgetSpecWithMap, compileWidgetSpecToComponent } from '@widget-factory/compiler';
 import TreeView from './TreeView.jsx';
 import HighlightOverlay from './HighlightOverlay.jsx';
 import SpecHighlightOverlay from './SpecHighlightOverlay.jsx';

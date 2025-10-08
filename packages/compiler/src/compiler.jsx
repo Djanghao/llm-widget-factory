@@ -1,18 +1,17 @@
 import React from 'react';
-// Import primitives for the compiled component rendering path
-import { WidgetShell } from './primitives/WidgetShell.jsx';
-import { Text } from './primitives/Text.jsx';
-import { Icon } from './primitives/Icon.jsx';
-import { Sparkline } from './primitives/Sparkline.jsx';
-import { AppLogo } from './primitives/AppLogo.jsx';
-import { MapImage } from './primitives/MapImage.jsx';
-import { Image } from './primitives/Image.jsx';
-import { Checkbox } from './primitives/Checkbox.jsx';
+import { WidgetShell } from '@widget-factory/primitives';
+import { Text } from '@widget-factory/primitives';
+import { Icon } from '@widget-factory/primitives';
+import { Sparkline } from '@widget-factory/primitives';
+import { AppLogo } from '@widget-factory/primitives';
+import { MapImage } from '@widget-factory/primitives';
+import { Image } from '@widget-factory/primitives';
+import { Checkbox } from '@widget-factory/primitives';
 
 function buildCodeAndMap(widgetSpec) {
   const imports = new Set();
   imports.add("import React from 'react';");
-  imports.add("import { WidgetShell } from '@widget-factory/core';");
+  imports.add("import { WidgetShell } from '@widget-factory/primitives';");
 
   const map = {};
   const lines = [];
@@ -58,9 +57,8 @@ function buildCodeAndMap(widgetSpec) {
       if (!componentName) {
         throw new Error('Invalid leaf node: missing component (kind is deprecated).');
       }
-      imports.add(`import { ${componentName} } from '@widget-factory/core';`);
+      imports.add(`import { ${componentName} } from '@widget-factory/primitives';`);
 
-      // Rely solely on provided props
       const mergedProps = { ...props };
 
       const propsCode = [];
@@ -123,7 +121,6 @@ export function compileWidgetSpecWithMap(widgetSpec) {
   return buildCodeAndMap(widgetSpec);
 }
 
-// New: compile spec into a live React component (props-only, kind deprecated)
 export function compileWidgetSpecToComponent(widgetSpec, options = {}) {
   if (!widgetSpec.widget?.root) {
     throw new Error('Invalid widget spec: missing widget.root');

@@ -1,10 +1,9 @@
-# Demo
+# Playground
 
-交互式演示/编辑器：加载示例 WidgetSpec、预览渲染并查看生成的 JSX。
+Interactive demo/editor: Load example WidgetSpecs, preview rendering, and view generated JSX.
 
-## 运行
+## Run
 ```bash
-npm run dev          # 从仓库根运行
-# 或
-npm run dev --workspace=demo
+cd playground
+npm run dev
 ```

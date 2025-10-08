@@ -7,7 +7,8 @@
     "build": "vite build"
   },
   "dependencies": {
-    "@widget-factory/core": "*",
+    "@widget-factory/primitives": "*",
+    "@widget-factory/compiler": "*",
     "@widget-factory/icons": "*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

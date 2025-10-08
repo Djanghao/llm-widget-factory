@@ -1,13 +1,12 @@
 import React from 'react';
-import { WidgetShell } from './primitives/WidgetShell.jsx';
-import { Text } from './primitives/Text.jsx';
-import { Icon } from './primitives/Icon.jsx';
-import { Sparkline } from './primitives/Sparkline.jsx';
-import { AppLogo } from './primitives/AppLogo.jsx';
-import { MapImage } from './primitives/MapImage.jsx';
-import { Image } from './primitives/Image.jsx';
-import { Checkbox } from './primitives/Checkbox.jsx';
-// kind is deprecated; specs must use explicit `component`
+import { WidgetShell } from '@widget-factory/primitives';
+import { Text } from '@widget-factory/primitives';
+import { Icon } from '@widget-factory/primitives';
+import { Sparkline } from '@widget-factory/primitives';
+import { AppLogo } from '@widget-factory/primitives';
+import { MapImage } from '@widget-factory/primitives';
+import { Image } from '@widget-factory/primitives';
+import { Checkbox } from '@widget-factory/primitives';
 
 function renderNode(node, pathArr = [], inspect = false) {
   if (node.type === 'container') {
@@ -65,13 +64,11 @@ function renderNode(node, pathArr = [], inspect = false) {
   if (node.type === 'leaf') {
     const { component, props = {}, flex, content } = node;
 
-    // Resolve component name from explicit 'component' only
     const componentName = component;
     if (!componentName) {
       throw new Error('Invalid leaf node: missing component (kind is deprecated).');
     }
 
-    // Rely solely on explicit props from spec
     const mergedProps = { ...props };
 
     const inspectProps = inspect ? { ['data-node-path']: pathArr.join('.'), ['data-node-type']: 'leaf' } : {};
