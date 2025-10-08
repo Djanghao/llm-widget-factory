@@ -8,9 +8,10 @@
 ```bash
 npm install
 npm run build:icons
+cd playground
 npm run dev
 ```
-打开 http://localhost:5173 访问 Demo。
+打开 http://localhost:5173 访问演示。
 
 ## 最小用法
 ```js
@@ -28,6 +29,6 @@ const Widget = compileWidgetSpecToComponent(spec);
 ## 包
 - `@widget-factory/core`：基础组件、编译器（输出 JSX 字符串）与编译渲染器（输出可运行组件）。
 - `@widget-factory/icons`：自动生成的图标组件与 `iconsMap`。
-- `demo`：示例应用与可视化编辑。
+- `playground`：示例应用与可视化编辑。
 
 详细说明见各包内 README。

@@ -5,10 +5,10 @@
   "type": "module",
   "workspaces": [
     "packages/*",
-    "demo"
+    "playground"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace=demo",
+    "dev": "npm run dev --workspace=playground",
     "build": "npm run build --workspaces --if-present",
     "build:icons": "node packages/icons/scripts/generate-icons.js"
   },
