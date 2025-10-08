@@ -17,6 +17,8 @@ function buildCodeAndMap(widgetSpec) {
   const map = {};
   const lines = [];
   const write = (line) => { lines.push(line); };
+  const formatJsxPropValue = (value) =>
+    typeof value === 'string' ? `=${JSON.stringify(value)}` : `={${JSON.stringify(value)}}`;
 
   function renderNode(node, depth = 0, path = '0') {
     const indent = '  '.repeat(depth);
@@ -95,14 +97,11 @@ function buildCodeAndMap(widgetSpec) {
   if (backgroundColor) shellProps.push(`backgroundColor="${backgroundColor}"`);
   if (borderRadius !== undefined) shellProps.push(`borderRadius={${borderRadius}}`);
   if (padding !== undefined) shellProps.push(`padding={${padding}}`);
+  if (width !== undefined) shellProps.push(`width${formatJsxPropValue(width)}`);
+  if (height !== undefined) shellProps.push(`height${formatJsxPropValue(height)}`);
   const shellPropsStr = shellProps.length > 0 ? ' ' + shellProps.join(' ') : '';
 
-  const styleParts = [];
-  if (width !== undefined) styleParts.push(`width: ${width}`);
-  if (height !== undefined) styleParts.push(`height: ${height}`);
-  const stylePropStr = styleParts.length > 0 ? ` style={{ ${styleParts.join(', ')} }}` : '';
-
-  const prefix = `${importsCode}\n\nexport default function Widget() {\n  return (\n    <WidgetShell${shellPropsStr}${stylePropStr}>\n`;
+  const prefix = `${importsCode}\n\nexport default function Widget() {\n  return (\n    <WidgetShell${shellPropsStr}>\n`;
   const suffix = `\n    </WidgetShell>\n  );\n}\n`;
   const prefixLineCount = prefix.split('\n').length - 1;
 
@@ -186,11 +185,14 @@ export function compileWidgetSpecToComponent(widgetSpec, options = {}) {
 
   const { backgroundColor, borderRadius, padding, width, height } = widgetSpec.widget;
   return function WidgetComponent() {
-    const shellStyle = {};
-    if (width !== undefined) shellStyle.width = width;
-    if (height !== undefined) shellStyle.height = height;
     return (
-      <WidgetShell backgroundColor={backgroundColor} borderRadius={borderRadius} padding={padding} style={shellStyle}>
+      <WidgetShell
+        backgroundColor={backgroundColor}
+        borderRadius={borderRadius}
+        padding={padding}
+        width={width}
+        height={height}
+      >
         {renderNode(widgetSpec.widget.root, ['0'])}
       </WidgetShell>
     );

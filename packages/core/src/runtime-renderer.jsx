@@ -126,15 +126,13 @@ export function renderWidgetFromSpec(spec, options = {}) {
   const { inspect = false } = options;
 
   return function WidgetComponent() {
-    const shellStyle = {};
-    if (width !== undefined) shellStyle.width = width;
-    if (height !== undefined) shellStyle.height = height;
     return (
       <WidgetShell
         backgroundColor={backgroundColor}
         borderRadius={borderRadius}
         padding={padding}
-        style={shellStyle}
+        width={width}
+        height={height}
       >
         {inspect ? renderNode(spec.widget.root, ['0'], true) : renderNode(spec.widget.root)}
       </WidgetShell>

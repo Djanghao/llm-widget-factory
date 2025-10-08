@@ -4,9 +4,15 @@ export function WidgetShell({
   backgroundColor = '#f2f2f7',
   borderRadius = 20,
   padding = 16,
+  width,
+  height,
   children,
   style = {}
 }) {
+  const sizeStyle = {};
+  if (width !== undefined) sizeStyle.width = width;
+  if (height !== undefined) sizeStyle.height = height;
+
   return (
     <div
       style={{
@@ -17,11 +23,11 @@ export function WidgetShell({
         display: 'inline-flex',
         flexDirection: 'column',
         boxSizing: 'border-box',
-        ...style
+        ...style,
+        ...sizeStyle
       }}
     >
       {children}
     </div>
   );
 }
-
