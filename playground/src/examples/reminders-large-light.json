@@ -250,7 +250,7 @@
                 {
                   "type": "leaf",
                   "component": "Checkbox",
-                  "flex": 0,
+                  "flex": "none",
                   "props": {
                     "size": 24,
                     "checked": false,

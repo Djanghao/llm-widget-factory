@@ -191,9 +191,6 @@ function App() {
             <h1 style={{ fontSize: 36, fontWeight: 700, margin: 0, color: '#f5f5f7', letterSpacing: '-0.5px' }}>
               Widget Factory
             </h1>
-            <p style={{ fontSize: 15, color: '#98989d', marginTop: 4, fontWeight: 400 }}>
-              WidgetSpec → JSX Compiler
-            </p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <button
