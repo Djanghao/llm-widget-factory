@@ -4,6 +4,7 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { compileWidgetSpecToJSX } from '@widget-factory/compiler';
 import TreeView from './TreeView.jsx';
 import Widget from './generated/Widget.jsx';
+import ImageToWidget from './ImageToWidget.jsx';
 import weatherSmallLight from './examples/weather-small-light.json';
 import weatherMediumDark from './examples/weather-medium-dark.json';
 import calendarSmallLight from './examples/calendar-small-light.json';
@@ -16,6 +17,7 @@ import photoMediumLight from './examples/photo-medium-light.json';
 import mapMediumDark from './examples/map-medium-dark.json';
 
 function App() {
+  const [activeTab, setActiveTab] = useState('presets');
   const [selectedExample, setSelectedExample] = useState('weatherSmallLight');
   const [editedSpec, setEditedSpec] = useState('');
   const [showComponentsModal, setShowComponentsModal] = useState(false);
@@ -347,6 +349,12 @@ function App() {
     }
   };
 
+  const handleWidgetGenerated = async (widgetSpec, aspectRatio) => {
+    const specStr = JSON.stringify(widgetSpec, null, 2);
+    setEditedSpec(specStr);
+    setRatioInput(aspectRatio.toString());
+  };
+
   return (
     <div style={{
       height: '100vh',
@@ -358,7 +366,7 @@ function App() {
       overflow: 'hidden'
     }}>
       <header style={{ marginBottom: 20, flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <div>
             <h1 style={{ fontSize: 36, fontWeight: 700, margin: 0, color: '#f5f5f7', letterSpacing: '-0.5px' }}>
               Widget Factory
@@ -385,44 +393,83 @@ function App() {
             </button>
           </div>
         </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            onClick={() => setActiveTab('presets')}
+            style={{
+              padding: '8px 16px',
+              fontSize: 14,
+              fontWeight: 500,
+              backgroundColor: activeTab === 'presets' ? '#007AFF' : '#2c2c2e',
+              color: '#f5f5f7',
+              border: activeTab === 'presets' ? 'none' : '1px solid #3a3a3c',
+              borderRadius: 6,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: activeTab === 'presets' ? '0 0 0 3px rgba(0, 122, 255, 0.2)' : 'none'
+            }}
+          >
+            Presets
+          </button>
+          <button
+            onClick={() => setActiveTab('widget2spec')}
+            style={{
+              padding: '8px 16px',
+              fontSize: 14,
+              fontWeight: 500,
+              backgroundColor: activeTab === 'widget2spec' ? '#007AFF' : '#2c2c2e',
+              color: '#f5f5f7',
+              border: activeTab === 'widget2spec' ? 'none' : '1px solid #3a3a3c',
+              borderRadius: 6,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: activeTab === 'widget2spec' ? '0 0 0 3px rgba(0, 122, 255, 0.2)' : 'none'
+            }}
+          >
+            Widget2Spec
+          </button>
+        </div>
       </header>
 
-      <div style={{ marginBottom: 16, flexShrink: 0 }}>
-        <h3 style={{
-          fontSize: 11,
-          fontWeight: 600,
-          marginBottom: 12,
-          color: '#6e6e73',
-          textTransform: 'uppercase',
-          letterSpacing: '0.5px'
-        }}>
-          Presets
-        </h3>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          {Object.entries(examples).map(([key, { name }]) => (
-            <button
-              key={key}
-              onClick={() => handleExampleChange(key)}
-              style={{
-                padding: '8px 14px',
-                fontSize: 13,
-                fontWeight: 500,
-                backgroundColor: selectedExample === key ? '#007AFF' : '#2c2c2e',
-                color: '#f5f5f7',
-                border: selectedExample === key ? 'none' : '1px solid #3a3a3c',
-                borderRadius: 6,
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: selectedExample === key ? '0 0 0 3px rgba(0, 122, 255, 0.2)' : 'none'
-              }}
-            >
-              {name}
-            </button>
-          ))}
+      {activeTab === 'presets' && (
+        <div style={{ marginBottom: 16, flexShrink: 0 }}>
+          <h3 style={{
+            fontSize: 11,
+            fontWeight: 600,
+            marginBottom: 12,
+            color: '#6e6e73',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
+          }}>
+            Presets
+          </h3>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {Object.entries(examples).map(([key, { name }]) => (
+              <button
+                key={key}
+                onClick={() => handleExampleChange(key)}
+                style={{
+                  padding: '8px 14px',
+                  fontSize: 13,
+                  fontWeight: 500,
+                  backgroundColor: selectedExample === key ? '#007AFF' : '#2c2c2e',
+                  color: '#f5f5f7',
+                  border: selectedExample === key ? 'none' : '1px solid #3a3a3c',
+                  borderRadius: 6,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: selectedExample === key ? '0 0 0 3px rgba(0, 122, 255, 0.2)' : 'none'
+                }}
+              >
+                {name}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      <div style={{
+      {activeTab === 'presets' && (
+        <div style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
           gridTemplateRows: '1fr 1fr',
@@ -839,6 +886,13 @@ function App() {
             />
           </div>
         </div>
+      )}
+
+      {activeTab === 'widget2spec' && (
+        <div style={{ flex: 1, minHeight: 0 }}>
+          <ImageToWidget onWidgetGenerated={handleWidgetGenerated} />
+        </div>
+      )}
 
       {showComponentsModal && (
         <div
