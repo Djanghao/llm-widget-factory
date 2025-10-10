@@ -27,6 +27,10 @@ function App() {
   const treeContainerRef = useRef(null);
   const specTextareaRef = useRef(null);
   const [frameSize, setFrameSize] = useState({ width: 0, height: 0 });
+  const [isLoading, setIsLoading] = useState(false);
+  const latestWriteTokenRef = useRef(0);
+  const expectedSizeRef = useRef(null);
+  const resizingRef = useRef(false);
 
   const handleSelectNode = (path) => setSelectedPath(prev => (prev === path ? null : path));
 
@@ -65,14 +69,37 @@ function App() {
         setGeneratedCode(jsx);
         setTreeRoot(spec?.widget || null);
 
-        await fetch('/__write_widget', {
-          method: 'POST',
-          body: jsx,
-          headers: { 'Content-Type': 'text/plain' }
-        });
+        const isResizeWrite = !!resizingRef.current;
+        if (isResizeWrite) {
+          latestWriteTokenRef.current += 1;
+          const token = latestWriteTokenRef.current;
+          const w = spec?.widget?.width;
+          const h = spec?.widget?.height;
+          expectedSizeRef.current = typeof w === 'number' && typeof h === 'number' ? { width: Math.round(w), height: Math.round(h) } : null;
+          setIsLoading(true);
+
+          await fetch('/__write_widget', {
+            method: 'POST',
+            body: jsx,
+            headers: { 'Content-Type': 'text/plain' }
+          });
+
+          if (!expectedSizeRef.current && latestWriteTokenRef.current === token) {
+            setIsLoading(false);
+          }
+        } else {
+          expectedSizeRef.current = null;
+          setIsLoading(false);
+          await fetch('/__write_widget', {
+            method: 'POST',
+            body: jsx,
+            headers: { 'Content-Type': 'text/plain' }
+          });
+        }
       } catch (err) {
         setGeneratedCode(`// Error: ${err.message}`);
         setTreeRoot(null);
+        setIsLoading(false);
       }
     };
 
@@ -89,7 +116,12 @@ function App() {
     const el = widgetFrameRef.current;
     const update = () => {
       const rect = el.getBoundingClientRect();
-      setFrameSize({ width: Math.round(rect.width), height: Math.round(rect.height) });
+      const next = { width: Math.round(rect.width), height: Math.round(rect.height) };
+      setFrameSize(next);
+      const expected = expectedSizeRef.current;
+      if (expected && next.width === expected.width && next.height === expected.height) {
+        setIsLoading(false);
+      }
     };
     update();
     const ro = new ResizeObserver(() => update());
@@ -390,6 +422,30 @@ function App() {
                 style={{ position: 'relative', display: 'inline-block' }}
               >
                 <Widget />
+                {isLoading && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: 0,
+                      top: 0,
+                      right: 0,
+                      bottom: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: 'rgba(0,0,0,0.12)',
+                      zIndex: 3,
+                      pointerEvents: 'none'
+                    }}
+                  >
+                    <svg width="32" height="32" viewBox="0 0 24 24" role="img" aria-label="Loading">
+                      <circle cx="12" cy="12" r="10" stroke="#8e8e93" strokeWidth="3" fill="none" opacity="0.25" />
+                      <path d="M12 2 a10 10 0 0 1 0 20" stroke="#007AFF" strokeWidth="3" strokeLinecap="round" fill="none">
+                        <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.9s" repeatCount="indefinite" />
+                      </path>
+                    </svg>
+                  </div>
+                )}
                 {/* Measurement overlays for width / height (no aspect ratio) */}
                 <div
                   style={{
@@ -512,6 +568,7 @@ function App() {
                     const startY = e.clientY;
                     const startW = rect.width;
                     const startH = rect.height;
+                    resizingRef.current = true;
 
                     const onMove = (ev) => {
                       const dx = ev.clientX - startX;
@@ -523,6 +580,7 @@ function App() {
                     const onUp = () => {
                       window.removeEventListener('mousemove', onMove);
                       window.removeEventListener('mouseup', onUp);
+                      resizingRef.current = false;
                     };
                     window.addEventListener('mousemove', onMove);
                     window.addEventListener('mouseup', onUp);
