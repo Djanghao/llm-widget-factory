@@ -69,7 +69,7 @@ function summarizeProps(props) {
     .join(', ');
 }
 
-function TreeNode({ node, depth = 0, path = '0', selectedPath, onSelect, onHover }) {
+function TreeNode({ node, depth = 0, path = '0', selectedPath, onSelect }) {
   const isContainer = node?.type === 'container';
   const [open, setOpen] = useState(true);
 
@@ -89,7 +89,6 @@ function TreeNode({ node, depth = 0, path = '0', selectedPath, onSelect, onHover
     <div style={{ marginLeft: depth === 0 ? 0 : 12 }}>
       <div
         onClick={() => onSelect && onSelect(path)}
-        onMouseEnter={() => onHover && onHover(path)}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -144,7 +143,7 @@ function TreeNode({ node, depth = 0, path = '0', selectedPath, onSelect, onHover
           }}
         >
           {node.children.map((child, i) => (
-            <TreeNode key={i} node={child} depth={depth + 1} path={`${path}.${i}`} selectedPath={selectedPath} onSelect={onSelect} onHover={onHover} />)
+            <TreeNode key={i} node={child} depth={depth + 1} path={`${path}.${i}`} selectedPath={selectedPath} onSelect={onSelect} />)
           )}
         </div>
       )}
@@ -152,7 +151,7 @@ function TreeNode({ node, depth = 0, path = '0', selectedPath, onSelect, onHover
   );
 }
 
-export default function TreeView({ root, style, selectedPath, onSelect, onHover }) {
+export default function TreeView({ root, style, selectedPath, onSelect }) {
 
   if (!root) {
     return (
@@ -185,8 +184,8 @@ export default function TreeView({ root, style, selectedPath, onSelect, onHover 
         background: '#1e1e1e',
         overflow: 'auto',
         padding: 8
-      }} onMouseLeave={() => onHover && onHover(null)}>
-        <TreeNode node={root} selectedPath={selectedPath} onSelect={onSelect} onHover={onHover} path={'0'} />
+      }}>
+        <TreeNode node={root} selectedPath={selectedPath} onSelect={onSelect} path={'0'} />
       </div>
     </div>
   );

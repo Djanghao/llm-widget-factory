@@ -1,11 +1,9 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { compileWidgetSpecWithMap, compileWidgetSpecToComponent } from '@widget-factory/compiler';
+import { compileWidgetSpecToJSX } from '@widget-factory/compiler';
 import TreeView from './TreeView.jsx';
-import HighlightOverlay from './HighlightOverlay.jsx';
-import SpecHighlightOverlay from './SpecHighlightOverlay.jsx';
-import buildSpecPathLineMap from './specLocator.js';
+import Widget from './generated/Widget.jsx';
 import weatherSmallLight from './examples/weather-small-light.json';
 import weatherMediumDark from './examples/weather-medium-dark.json';
 import calendarSmallLight from './examples/calendar-small-light.json';
@@ -21,22 +19,15 @@ function App() {
   const [selectedExample, setSelectedExample] = useState('weatherSmallLight');
   const [editedSpec, setEditedSpec] = useState('');
   const [showComponentsModal, setShowComponentsModal] = useState(false);
-  const [inspectMode, setInspectMode] = useState(true);
   const [selectedPath, setSelectedPath] = useState(null);
-  const [hoverPath, setHoverPath] = useState(null);
+  const [generatedCode, setGeneratedCode] = useState('');
+  const [treeRoot, setTreeRoot] = useState(null);
   const previewContainerRef = useRef(null);
   const widgetFrameRef = useRef(null);
   const treeContainerRef = useRef(null);
   const specTextareaRef = useRef(null);
-  const jsxScrollRef = useRef(null);
-  const [jsxLineMap, setJsxLineMap] = useState({});
-  const [specLineMap, setSpecLineMap] = useState({});
-  const [jsxHL, setJsxHL] = useState(null);
+
   const handleSelectNode = (path) => setSelectedPath(prev => (prev === path ? null : path));
-  const handleHoverNode = (path) => {
-    if (!inspectMode) return;
-    setHoverPath(path);
-  };
 
   useEffect(() => {
     const onDocClick = (e) => {
@@ -63,38 +54,29 @@ function App() {
   };
 
   const currentExample = examples[selectedExample];
-
   const currentSpec = editedSpec || JSON.stringify(currentExample.spec, null, 2);
 
-  const { generatedCode, PreviewWidget, treeRoot, _jsxMap } = useMemo(() => {
-    try {
-      const spec = editedSpec ? JSON.parse(editedSpec) : currentExample.spec;
-      const { code, map } = compileWidgetSpecWithMap(spec);
-      // Use compiled component for preview to follow: spec -> JSX -> render
-      const WidgetComponent = compileWidgetSpecToComponent(spec, { inspect: inspectMode });
-      return { generatedCode: code, PreviewWidget: WidgetComponent, treeRoot: spec?.widget?.root, _jsxMap: map };
-    } catch (error) {
-      return {
-        generatedCode: `// Error: ${error.message}`,
-        PreviewWidget: () => <div style={{ color: '#ff453a', fontSize: 13 }}>Error: {error.message}</div>,
-        treeRoot: null,
-        _jsxMap: {}
-      };
-    }
-  }, [currentExample, editedSpec, inspectMode]);
-
   useEffect(() => {
-    setJsxLineMap(_jsxMap || {});
-  }, [_jsxMap]);
+    const compileAndWrite = async () => {
+      try {
+        const spec = editedSpec ? JSON.parse(editedSpec) : currentExample.spec;
+        const jsx = compileWidgetSpecToJSX(spec);
+        setGeneratedCode(jsx);
+        setTreeRoot(spec?.widget?.root || null);
 
-  useEffect(() => {
-    const text = currentSpec;
-    if (typeof text === 'string') {
-      setSpecLineMap(buildSpecPathLineMap(text));
-    } else {
-      setSpecLineMap({});
-    }
-  }, [currentSpec]);
+        await fetch('/__write_widget', {
+          method: 'POST',
+          body: jsx,
+          headers: { 'Content-Type': 'text/plain' }
+        });
+      } catch (err) {
+        setGeneratedCode(`// Error: ${err.message}`);
+        setTreeRoot(null);
+      }
+    };
+
+    compileAndWrite();
+  }, [currentExample, editedSpec]);
 
   const handleSpecChange = (value) => {
     setEditedSpec(value);
@@ -106,12 +88,10 @@ function App() {
     setSelectedPath(null);
   };
 
-  // Utilities: safely parse current spec and update width/height
   const parseCurrentSpecObject = () => {
     try {
       return editedSpec ? JSON.parse(editedSpec) : JSON.parse(JSON.stringify(currentExample.spec));
     } catch {
-      // If spec JSON is invalid due to user edits, do not attempt to modify it
       return null;
     }
   };
@@ -133,55 +113,6 @@ function App() {
     delete next.widget.height;
     setEditedSpec(JSON.stringify(next, null, 2));
   };
-
-  // Sync highlights in code/spec when hover/selection changes
-  useEffect(() => {
-    if (!inspectMode) {
-      setJsxHL(null);
-      return;
-    }
-    const active = hoverPath || selectedPath;
-    const range = active ? jsxLineMap[active] : null;
-    setJsxHL(range || null);
-
-    // Auto-scroll code view to range
-    if (range && jsxScrollRef.current) {
-      const el = jsxScrollRef.current.querySelector(`[data-code-line="${range.startLine}"]`);
-      if (el) {
-        const container = jsxScrollRef.current;
-        const top = el.offsetTop - container.clientHeight * 0.3;
-        container.scrollTo({ top: top < 0 ? 0 : top, behavior: 'smooth' });
-      }
-    }
-
-    // Do NOT override user's caret/selection while textarea is focused
-    const ta = specTextareaRef.current;
-    if (!ta) return;
-    const isSpecFocused = document.activeElement === ta;
-    if (isSpecFocused) return;
-
-    if (active && specLineMap[active]) {
-      const { start, end, lineStart } = specLineMap[active];
-      try {
-        ta.setSelectionRange(start, end);
-        const cs = window.getComputedStyle(ta);
-        const lineH = parseFloat(cs.lineHeight) || 20;
-        const top = Math.max(0, (lineStart - 2) * lineH);
-        ta.scrollTo({ top, behavior: 'smooth' });
-      } catch {}
-    } else {
-      // When no active highlight, keep user's caret as-is
-    }
-  }, [hoverPath, selectedPath, inspectMode, jsxLineMap, specLineMap]);
-
-  // When selecting a node (click), focus the spec textarea to reveal selection highlight
-  useEffect(() => {
-    if (!inspectMode) return;
-    if (!selectedPath) return;
-    const ta = specTextareaRef.current;
-    if (!ta) return;
-    try { ta.focus({ preventScroll: true }); } catch {}
-  }, [selectedPath, inspectMode]);
 
   return (
     <div style={{
@@ -205,25 +136,6 @@ function App() {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <button
-              onClick={() => setInspectMode(v => !v)}
-              style={{
-                padding: '10px 14px',
-                fontSize: 13,
-                fontWeight: 600,
-                backgroundColor: inspectMode ? '#007AFF' : '#2c2c2e',
-                color: '#f5f5f7',
-                border: '1px solid #3a3a3c',
-                borderRadius: 8,
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = inspectMode ? '#0a66d0' : '#3a3a3c'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = inspectMode ? '#007AFF' : '#2c2c2e'}
-              title="Toggle Inspect Overlay"
-            >
-              {inspectMode ? 'Inspect: On' : 'Inspect: Off'}
-            </button>
-            <button
               onClick={() => setShowComponentsModal(true)}
               style={{
                 padding: '10px 20px',
@@ -245,7 +157,6 @@ function App() {
         </div>
       </header>
 
-      
       <div style={{ marginBottom: 16, flexShrink: 0 }}>
         <h3 style={{
           fontSize: 11,
@@ -281,7 +192,6 @@ function App() {
         </div>
       </div>
 
-      
       <div style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
@@ -294,7 +204,7 @@ function App() {
           paddingBottom: 24,
           gridAutoRows: 'minmax(0, 1fr)'
         }}>
-          
+
           <div style={{ minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column', gridArea: 'spec' }}>
             <h2 style={{
               fontSize: 16,
@@ -340,13 +250,9 @@ function App() {
                 onFocus={(e) => e.target.style.borderColor = '#007AFF'}
                 onBlur={(e) => e.target.style.borderColor = '#3a3a3c'}
               />
-              {inspectMode && (hoverPath || selectedPath) && specLineMap[(hoverPath || selectedPath)] && (
-                <SpecHighlightOverlay textareaRef={specTextareaRef} activeRange={specLineMap[(hoverPath || selectedPath)]} />
-              )}
             </div>
           </div>
 
-          
           <div style={{ minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column', gridArea: 'code' }}>
             <h2 style={{
               fontSize: 16,
@@ -376,21 +282,12 @@ function App() {
               flexDirection: 'column',
               overflow: 'hidden'
             }}>
-              <div ref={jsxScrollRef} style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+              <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
                 <SyntaxHighlighter
                   language="jsx"
                   style={vscDarkPlus}
                   showLineNumbers
                   wrapLongLines={false}
-                  wrapLines
-                  lineProps={(lineNumber) => {
-                    const active = jsxHL;
-                    const activeLine = active && lineNumber >= active.startLine && lineNumber <= active.endLine;
-                    return {
-                      'data-code-line': lineNumber,
-                      style: activeLine ? { background: 'rgba(255, 214, 10, 0.18)' } : undefined
-                    };
-                  }}
                   customStyle={{
                     margin: 0,
                     fontSize: 13,
@@ -399,11 +296,6 @@ function App() {
                     minHeight: 0,
                     overflow: 'visible'
                   }}
-                  codeTagProps={{
-                    style: {
-                      whiteSpace: 'pre'
-                    }
-                  }}
                 >
                   {generatedCode}
                 </SyntaxHighlighter>
@@ -411,7 +303,6 @@ function App() {
             </div>
           </div>
 
-          
           <div style={{ minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column', gridArea: 'preview' }}>
             <h2 style={{
               fontSize: 16,
@@ -469,8 +360,7 @@ function App() {
                 ref={widgetFrameRef}
                 style={{ position: 'relative', display: 'inline-block' }}
               >
-                <PreviewWidget />
-                {/* Resize handle (bottom-right) */}
+                <Widget />
                 <div
                   onMouseDown={(e) => {
                     e.preventDefault();
@@ -511,15 +401,10 @@ function App() {
                   }}
                   title="Drag to resize"
                 />
-                {/* Resizer handle only; no persistent outline to avoid UI changes */}
               </div>
-              {inspectMode && (
-                <HighlightOverlay containerRef={previewContainerRef} selectedPath={selectedPath} hoverPath={hoverPath} />
-              )}
             </div>
           </div>
 
-          
           <div ref={treeContainerRef} style={{ minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column', gridArea: 'tree' }}>
             <h2 style={{
               fontSize: 16,
@@ -544,13 +429,10 @@ function App() {
               style={{ flex: 1, minHeight: 0 }}
               selectedPath={selectedPath}
               onSelect={handleSelectNode}
-              onHover={handleHoverNode}
-              hoverPath={hoverPath}
             />
           </div>
         </div>
 
-      
       {showComponentsModal && (
         <div
           style={{
@@ -626,7 +508,7 @@ function App() {
                   </div>
                 </div>
               </div>
-              
+
               <div style={{ backgroundColor: '#2c2c2e', borderRadius: 12, padding: 24 }}>
                 <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f5f5f7' }}>
                   Text Components
@@ -677,7 +559,6 @@ function App() {
                 </div>
               </div>
 
-              
               <div style={{ backgroundColor: '#2c2c2e', borderRadius: 12, padding: 24 }}>
                 <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f5f5f7' }}>
                   Media Components
@@ -745,7 +626,6 @@ function App() {
                 </div>
               </div>
 
-              
               <div style={{ backgroundColor: '#2c2c2e', borderRadius: 12, padding: 24 }}>
                 <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f5f5f7' }}>
                   Chart Components
@@ -768,7 +648,6 @@ function App() {
                 </div>
               </div>
 
-              
               <div style={{ backgroundColor: '#2c2c2e', borderRadius: 12, padding: 24 }}>
                 <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f5f5f7' }}>
                   Control Components
@@ -791,7 +670,6 @@ function App() {
                 </div>
               </div>
 
-              
               <div style={{ backgroundColor: '#2c2c2e', borderRadius: 12, padding: 24 }}>
                 <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f5f5f7' }}>
                   Layout
