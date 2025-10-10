@@ -31,6 +31,8 @@ function App() {
   const latestWriteTokenRef = useRef(0);
   const expectedSizeRef = useRef(null);
   const resizingRef = useRef(false);
+  const [ratioInput, setRatioInput] = useState('');
+  const [autoSizing, setAutoSizing] = useState(false);
 
   const handleSelectNode = (path) => setSelectedPath(prev => (prev === path ? null : path));
 
@@ -173,6 +175,127 @@ function App() {
     delete next.widget.width;
     delete next.widget.height;
     setEditedSpec(JSON.stringify(formatSpecWithRootLast(next), null, 2));
+  };
+
+  const parseAspectRatio = (str) => {
+    if (!str) return null;
+    const s = String(str).trim();
+    if (!s) return null;
+    if (s.includes(':')) {
+      const [a, b] = s.split(':');
+      const na = parseFloat(a);
+      const nb = parseFloat(b);
+      if (!isFinite(na) || !isFinite(nb) || nb <= 0) return null;
+      return na / nb;
+    }
+    const v = parseFloat(s);
+    if (!isFinite(v) || v <= 0) return null;
+    return v;
+  };
+
+  const waitForFrameToSize = async (targetW, targetH, timeoutMs = 3000) => {
+    const start = Date.now();
+    for (;;) {
+      const node = widgetFrameRef.current;
+      if (!node) break;
+      const rect = node.getBoundingClientRect();
+      if (Math.round(rect.width) === Math.round(targetW) && Math.round(rect.height) === Math.round(targetH)) {
+        await new Promise((r) => requestAnimationFrame(r));
+        await new Promise((r) => requestAnimationFrame(r));
+        return true;
+      }
+      if (Date.now() - start > timeoutMs) return false;
+      await new Promise((r) => setTimeout(r, 16));
+    }
+    return false;
+  };
+
+  const measureOverflow = () => {
+    const frame = widgetFrameRef.current;
+    if (!frame) return { fits: false };
+    const root = frame.firstElementChild;
+    if (!root) return { fits: false };
+    const cw = root.clientWidth;
+    const ch = root.clientHeight;
+    const sw = root.scrollWidth;
+    const sh = root.scrollHeight;
+    const fits = sw <= cw && sh <= ch;
+    return { fits, cw, ch, sw, sh };
+  };
+
+  const applySizeAndMeasure = async (w, h) => {
+    resizingRef.current = true;
+    applySizeToSpec(w, h);
+    await waitForFrameToSize(w, h);
+    const m = measureOverflow();
+    return m;
+  };
+
+  const handleAutoResizeByRatio = async () => {
+    if (autoSizing) return;
+    const r = parseAspectRatio(ratioInput);
+    if (!r) return;
+    setAutoSizing(true);
+    try {
+      const frame = widgetFrameRef.current;
+      const rect = frame ? frame.getBoundingClientRect() : null;
+      const startW = rect ? Math.max(40, Math.round(rect.width)) : 200;
+      const startH = Math.max(40, Math.round(startW / r));
+      let m = await applySizeAndMeasure(startW, startH);
+      if (m.fits) {
+        let low = 40;
+        let high = startW;
+        let best = { w: startW, h: startH };
+        let lfit = false;
+        const lm = await applySizeAndMeasure(low, Math.max(40, Math.round(low / r)));
+        lfit = lm.fits;
+        if (lfit) {
+          best = { w: low, h: Math.max(40, Math.round(low / r)) };
+        } else {
+          while (high - low > 1) {
+            const mid = Math.floor((low + high) / 2);
+            const mh = Math.max(40, Math.round(mid / r));
+            const mm = await applySizeAndMeasure(mid, mh);
+            if (mm.fits) {
+              best = { w: mid, h: mh };
+              high = mid;
+            } else {
+              low = mid;
+            }
+          }
+        }
+        await applySizeAndMeasure(best.w, best.h);
+      } else {
+        let low = startW;
+        let high = startW;
+        let mm = m;
+        const maxCap = 4096;
+        while (!mm.fits && high < maxCap) {
+          low = high;
+          high = Math.min(maxCap, high * 2);
+          const hh = Math.max(40, Math.round(high / r));
+          mm = await applySizeAndMeasure(high, hh);
+        }
+        let best = mm.fits ? { w: high, h: Math.max(40, Math.round(high / r)) } : { w: low, h: Math.max(40, Math.round(low / r)) };
+        if (mm.fits) {
+          while (high - low > 1) {
+            const mid = Math.floor((low + high) / 2);
+            const mh = Math.max(40, Math.round(mid / r));
+            const m2 = await applySizeAndMeasure(mid, mh);
+            if (m2.fits) {
+              best = { w: mid, h: mh };
+              high = mid;
+            } else {
+              low = mid;
+            }
+          }
+          await applySizeAndMeasure(best.w, best.h);
+        }
+      }
+    } finally {
+      resizingRef.current = false;
+      setAutoSizing(false);
+    }
   };
 
   return (
@@ -379,26 +502,65 @@ function App() {
                 backgroundColor: '#007AFF'
               }} />
               Preview
-              <button
-                onClick={restoreSizeInSpec}
-                style={{
-                  marginLeft: 'auto',
-                  padding: '6px 10px',
-                  fontSize: 12,
-                  fontWeight: 500,
-                  backgroundColor: '#2c2c2e',
-                  color: '#f5f5f7',
-                  border: '1px solid #3a3a3c',
-                  borderRadius: 6,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#3a3a3c'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2c2c2e'}
-                title="Restore widget size"
-              >
-                Restore
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 'auto' }}>
+                <input
+                  value={ratioInput}
+                  onChange={(e) => setRatioInput(e.target.value)}
+                  placeholder="16:9 or 1.777"
+                  style={{
+                    width: 120,
+                    height: 28,
+                    fontSize: 12,
+                    color: '#f5f5f7',
+                    backgroundColor: '#2c2c2e',
+                    border: '1px solid #3a3a3c',
+                    borderRadius: 6,
+                    padding: '0 8px',
+                    outline: 'none'
+                  }}
+                  onFocus={(e) => e.currentTarget.style.borderColor = '#007AFF'}
+                  onBlur={(e) => e.currentTarget.style.borderColor = '#3a3a3c'}
+                />
+                <button
+                  onClick={handleAutoResizeByRatio}
+                  disabled={autoSizing}
+                  style={{
+                    padding: '6px 10px',
+                    fontSize: 12,
+                    fontWeight: 500,
+                    backgroundColor: autoSizing ? '#3a3a3c' : '#2c2c2e',
+                    color: '#f5f5f7',
+                    border: '1px solid #3a3a3c',
+                    borderRadius: 6,
+                    cursor: autoSizing ? 'default' : 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => { if (!autoSizing) e.currentTarget.style.backgroundColor = '#3a3a3c'; }}
+                  onMouseLeave={(e) => { if (!autoSizing) e.currentTarget.style.backgroundColor = '#2c2c2e'; }}
+                  title="Auto-resize to aspect ratio"
+                >
+                  {autoSizing ? 'Sizing…' : 'Auto-Resize'}
+                </button>
+                <button
+                  onClick={restoreSizeInSpec}
+                  style={{
+                    padding: '6px 10px',
+                    fontSize: 12,
+                    fontWeight: 500,
+                    backgroundColor: '#2c2c2e',
+                    color: '#f5f5f7',
+                    border: '1px solid #3a3a3c',
+                    borderRadius: 6,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#3a3a3c'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2c2c2e'}
+                  title="Restore widget size"
+                >
+                  Restore
+                </button>
+              </div>
             </h2>
           <div style={{
               backgroundColor: '#0d0d0d',
