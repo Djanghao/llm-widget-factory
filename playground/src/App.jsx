@@ -62,7 +62,7 @@ function App() {
         const spec = editedSpec ? JSON.parse(editedSpec) : currentExample.spec;
         const jsx = compileWidgetSpecToJSX(spec);
         setGeneratedCode(jsx);
-        setTreeRoot(spec?.widget?.root || null);
+        setTreeRoot(spec?.widget || null);
 
         await fetch('/__write_widget', {
           method: 'POST',

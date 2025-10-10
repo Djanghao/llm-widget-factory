@@ -69,19 +69,24 @@ function summarizeProps(props) {
     .join(', ');
 }
 
-function TreeNode({ node, depth = 0, path = '0', selectedPath, onSelect }) {
+function TreeNode({ node, depth = 0, path = '0', selectedPath, onSelect, isWidget = false }) {
   const isContainer = node?.type === 'container';
   const [open, setOpen] = useState(true);
 
-  const label = isContainer
-    ? `container`
-    : (node?.component || 'leaf');
+  const label = isWidget
+    ? 'Widget'
+    : (isContainer ? 'container' : (node?.component || 'leaf'));
 
-  const meta = isContainer
-    ? `${node?.direction || 'row'}${node?.children ? ` • ${node.children.length}` : ''}`
-    : summarizeProps(node?.props);
+  const meta = isWidget
+    ? Object.entries(node || {})
+        .filter(([key]) => key !== 'root')
+        .map(([k, v]) => `${k}:${typeof v === 'string' ? v : JSON.stringify(v)}`)
+        .join(', ')
+    : (isContainer
+      ? `${node?.direction || 'row'}${node?.children ? ` • ${node.children.length}` : ''}`
+      : summarizeProps(node?.props));
 
-  const color = isContainer ? '#64D2FF' : '#FF9F0A';
+  const color = isWidget ? '#BF5AF2' : (isContainer ? '#64D2FF' : '#FF9F0A');
 
   const isSelected = selectedPath === path;
 
@@ -104,7 +109,7 @@ function TreeNode({ node, depth = 0, path = '0', selectedPath, onSelect }) {
         }}
         data-tree-path={path}
       >
-        {isContainer ? (
+        {isWidget || isContainer ? (
           <Caret open={open} onClick={() => setOpen(v => !v)} />
         ) : (
           <div style={{ width: 20, marginRight: 8 }} />
@@ -112,10 +117,10 @@ function TreeNode({ node, depth = 0, path = '0', selectedPath, onSelect }) {
         <Dot color={color} />
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, minWidth: 0 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: '#f5f5f7' }}>{label}</div>
-          {isContainer ? (
+          {isContainer && !isWidget ? (
             <NodeBadge label={node?.direction === 'col' ? 'column' : 'row'} color="#64D2FF" />
           ) : null}
-          {!isContainer && node?.flex !== undefined ? (
+          {!isContainer && !isWidget && node?.flex !== undefined ? (
             <NodeBadge label={`flex:${node.flex}`} color="#FF9F0A" />
           ) : null}
         </div>
@@ -134,7 +139,7 @@ function TreeNode({ node, depth = 0, path = '0', selectedPath, onSelect }) {
         ) : null}
       </div>
 
-      {isContainer && open && Array.isArray(node.children) && node.children.length > 0 && (
+      {(isWidget || isContainer) && open && (
         <div
           style={{
             marginLeft: 22,
@@ -142,8 +147,14 @@ function TreeNode({ node, depth = 0, path = '0', selectedPath, onSelect }) {
             borderLeft: '1px dashed #3a3a3c',
           }}
         >
-          {node.children.map((child, i) => (
-            <TreeNode key={i} node={child} depth={depth + 1} path={`${path}.${i}`} selectedPath={selectedPath} onSelect={onSelect} />)
+          {isWidget ? (
+            node?.root ? <TreeNode node={node.root} depth={depth + 1} path={`${path}.root`} selectedPath={selectedPath} onSelect={onSelect} /> : null
+          ) : (
+            Array.isArray(node.children) && node.children.length > 0 ? (
+              node.children.map((child, i) => (
+                <TreeNode key={i} node={child} depth={depth + 1} path={`${path}.${i}`} selectedPath={selectedPath} onSelect={onSelect} />
+              ))
+            ) : null
           )}
         </div>
       )}
@@ -185,7 +196,7 @@ export default function TreeView({ root, style, selectedPath, onSelect }) {
         overflow: 'auto',
         padding: 8
       }}>
-        <TreeNode node={root} selectedPath={selectedPath} onSelect={onSelect} path={'0'} />
+        <TreeNode node={root} selectedPath={selectedPath} onSelect={onSelect} path={'0'} isWidget={true} />
       </div>
     </div>
   );
