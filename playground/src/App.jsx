@@ -82,6 +82,16 @@ function App() {
     setEditedSpec(value);
   };
 
+  // Ensure `widget.root` is serialized as the last key in `widget`
+  const formatSpecWithRootLast = (spec) => {
+    if (!spec || typeof spec !== 'object') return spec;
+    const w = spec.widget;
+    if (!w || typeof w !== 'object' || !('root' in w)) return spec;
+    const { root, ...rest } = w;
+    // Reassemble with `root` placed last
+    return { ...spec, widget: { ...rest, root } };
+  };
+
   const handleExampleChange = (key) => {
     setSelectedExample(key);
     setEditedSpec('');
@@ -102,7 +112,7 @@ function App() {
     const next = { ...obj, widget: { ...obj.widget } };
     next.widget.width = Math.max(1, Math.round(width));
     next.widget.height = Math.max(1, Math.round(height));
-    setEditedSpec(JSON.stringify(next, null, 2));
+    setEditedSpec(JSON.stringify(formatSpecWithRootLast(next), null, 2));
   };
 
   const restoreSizeInSpec = () => {
@@ -111,7 +121,7 @@ function App() {
     const next = { ...obj, widget: { ...obj.widget } };
     delete next.widget.width;
     delete next.widget.height;
-    setEditedSpec(JSON.stringify(next, null, 2));
+    setEditedSpec(JSON.stringify(formatSpecWithRootLast(next), null, 2));
   };
 
   return (

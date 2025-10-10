@@ -11,7 +11,7 @@ npm run build:icons
 cd playground
 npm run dev
 ```
-Open http://localhost:5173 to access demo.
+Open http://localhost:5173 (by default) to access demo.
 
 ## Minimal Usage
 ```js
