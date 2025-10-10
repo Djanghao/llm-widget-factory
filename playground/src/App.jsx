@@ -26,6 +26,7 @@ function App() {
   const widgetFrameRef = useRef(null);
   const treeContainerRef = useRef(null);
   const specTextareaRef = useRef(null);
+  const [frameSize, setFrameSize] = useState({ width: 0, height: 0 });
 
   const handleSelectNode = (path) => setSelectedPath(prev => (prev === path ? null : path));
 
@@ -81,6 +82,24 @@ function App() {
   const handleSpecChange = (value) => {
     setEditedSpec(value);
   };
+
+  // Track live widget frame size using ResizeObserver for accurate measurement guides
+  useEffect(() => {
+    if (!widgetFrameRef.current) return;
+    const el = widgetFrameRef.current;
+    const update = () => {
+      const rect = el.getBoundingClientRect();
+      setFrameSize({ width: Math.round(rect.width), height: Math.round(rect.height) });
+    };
+    update();
+    const ro = new ResizeObserver(() => update());
+    ro.observe(el);
+    window.addEventListener('resize', update);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', update);
+    };
+  }, [widgetFrameRef.current]);
 
   // Ensure `widget.root` is serialized as the last key in `widget`
   const formatSpecWithRootLast = (spec) => {
@@ -371,6 +390,118 @@ function App() {
                 style={{ position: 'relative', display: 'inline-block' }}
               >
                 <Widget />
+                {/* Measurement overlays for width / height (no aspect ratio) */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    right: 0,
+                    bottom: 0,
+                    pointerEvents: 'none',
+                    zIndex: 4
+                  }}
+                >
+                  {/* Horizontal measurement line (above widget) */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: 0,
+                      right: 0,
+                      top: -20,
+                      height: 0
+                    }}
+                  >
+                    {/* end ticks */}
+                    <div style={{ position: 'absolute', left: 0, top: -5, width: 1, height: 12, background: '#8e8e93' }} />
+                    <div style={{ position: 'absolute', right: 0, top: -5, width: 1, height: 12, background: '#8e8e93' }} />
+                    {/* center dashed line */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        left: 0,
+                        right: 0,
+                        top: 1,
+                        height: 1,
+                        backgroundImage: 'repeating-linear-gradient(90deg, rgba(142,142,147,0.9) 0 6px, rgba(142,142,147,0) 6px 12px)'
+                      }}
+                    />
+                    {/* label capsule */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        left: '50%',
+                        top: 0,
+                        transform: 'translate(-50%, -60%)',
+                        background: 'rgba(44,44,46,0.9)',
+                        color: '#d1d1d6',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        borderRadius: 9999,
+                        padding: '3px 10px',
+                        fontSize: 11,
+                        lineHeight: 1,
+                        whiteSpace: 'nowrap',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.35)',
+                        backdropFilter: 'blur(4px)',
+                        WebkitBackdropFilter: 'blur(4px)',
+                        letterSpacing: 0.2,
+                        fontVariantNumeric: 'tabular-nums'
+                      }}
+                    >
+                      {frameSize.width}px
+                    </div>
+                  </div>
+
+                  {/* Vertical measurement line (right of widget) */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      bottom: 0,
+                      left: 'calc(100% + 16px)',
+                      width: 0
+                    }}
+                  >
+                    {/* end ticks */}
+                    <div style={{ position: 'absolute', left: -5, top: 0, width: 12, height: 1, background: '#8e8e93' }} />
+                    <div style={{ position: 'absolute', left: -5, bottom: 0, width: 12, height: 1, background: '#8e8e93' }} />
+                    {/* center dashed line */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        bottom: 0,
+                        left: 1,
+                        width: 1,
+                        backgroundImage: 'repeating-linear-gradient(180deg, rgba(142,142,147,0.9) 0 6px, rgba(142,142,147,0) 6px 12px)'
+                      }}
+                    />
+                    {/* label capsule */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        left: 10,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'rgba(44,44,46,0.9)',
+                        color: '#d1d1d6',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        borderRadius: 9999,
+                        padding: '3px 10px',
+                        fontSize: 11,
+                        lineHeight: 1,
+                        whiteSpace: 'nowrap',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.35)',
+                        backdropFilter: 'blur(4px)',
+                        WebkitBackdropFilter: 'blur(4px)',
+                        letterSpacing: 0.2,
+                        fontVariantNumeric: 'tabular-nums'
+                      }}
+                    >
+                      {frameSize.height}px
+                    </div>
+                  </div>
+                </div>
                 <div
                   onMouseDown={(e) => {
                     e.preventDefault();
