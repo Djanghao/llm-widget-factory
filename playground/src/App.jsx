@@ -56,6 +56,10 @@ function App() {
   const [iconColor, setIconColor] = useState('rgba(255, 255, 255, 0.85)');
   const [iconLibrary, setIconLibrary] = useState('sf');
   const [enableAutoResize, setEnableAutoResize] = useState(true);
+  // Epoch token to cancel stale async work when switching presets
+  const presetEpochRef = useRef(0);
+  // Track which epoch currently owns the auto-resize run
+  const autoResizeOwnerEpochRef = useRef(null);
 
   const handleSelectNode = (path) => setSelectedPath(prev => (prev === path ? null : path));
 
@@ -100,10 +104,16 @@ function App() {
   const currentSpec = editedSpec || JSON.stringify(currentExample.spec, null, 2);
 
   useEffect(() => {
+    let cancelled = false;
+    const myEpoch = presetEpochRef.current;
+    const controller = new AbortController();
     const compileAndWrite = async () => {
       try {
         const spec = editedSpec ? JSON.parse(editedSpec) : currentExample.spec;
         const jsx = compileWidgetSpecToJSX(spec);
+
+        if (cancelled || presetEpochRef.current !== myEpoch) return;
+
         setGeneratedCode(jsx);
         setTreeRoot(spec?.widget || null);
 
@@ -119,8 +129,11 @@ function App() {
           await fetch('/__write_widget', {
             method: 'POST',
             body: jsx,
-            headers: { 'Content-Type': 'text/plain' }
+            headers: { 'Content-Type': 'text/plain' },
+            signal: controller.signal
           });
+
+          if (cancelled || presetEpochRef.current !== myEpoch) return;
 
           if (!expectedSizeRef.current && latestWriteTokenRef.current === token) {
             setIsLoading(false);
@@ -131,10 +144,12 @@ function App() {
           await fetch('/__write_widget', {
             method: 'POST',
             body: jsx,
-            headers: { 'Content-Type': 'text/plain' }
+            headers: { 'Content-Type': 'text/plain' },
+            signal: controller.signal
           });
         }
       } catch (err) {
+        if (cancelled || presetEpochRef.current !== myEpoch) return;
         setGeneratedCode(`// Error: ${err.message}`);
         setTreeRoot(null);
         setIsLoading(false);
@@ -142,6 +157,7 @@ function App() {
     };
 
     compileAndWrite();
+    return () => { cancelled = true; controller.abort(); };
   }, [selectedExample, editedSpec]);
 
   const handleSpecChange = (value) => {
@@ -179,8 +195,9 @@ function App() {
     const hasWH = w.width !== undefined && w.height !== undefined;
     const r = w.aspectRatio;
     if (!hasWH && typeof r === 'number' && isFinite(r) && r > 0) {
+      const epoch = presetEpochRef.current;
       setRatioInput(r.toString());
-      handleAutoResizeByRatio(r);
+      handleAutoResizeByRatio(r, epoch);
     }
   }, [enableAutoResize, selectedExample, editedSpec]);
 
@@ -195,9 +212,15 @@ function App() {
   };
 
   const handleExampleChange = (key) => {
+    // Bump epoch to cancel any in-flight async work from previous preset
+    presetEpochRef.current += 1;
+    // Reset states tied to previous preset
     setSelectedExample(key);
     setEditedSpec('');
     setSelectedPath(null);
+    // Ensure any ongoing auto-resize is considered finished for the old preset
+    setAutoSizing(false);
+    resizingRef.current = false;
   };
 
   const parseCurrentSpecObject = () => {
@@ -208,7 +231,8 @@ function App() {
     }
   };
 
-  const applySizeToSpec = (width, height) => {
+  const applySizeToSpec = (width, height, runEpoch) => {
+    if (runEpoch != null && presetEpochRef.current !== runEpoch) return;
     const obj = parseCurrentSpecObject();
     if (!obj || !obj.widget) return;
     const next = { ...obj, widget: { ...obj.widget } };
@@ -217,7 +241,8 @@ function App() {
     setEditedSpec(JSON.stringify(formatSpecWithRootLast(next), null, 2));
   };
 
-  const restoreSizeInSpec = () => {
+  const restoreSizeInSpec = (runEpoch) => {
+    if (runEpoch != null && presetEpochRef.current !== runEpoch) return;
     const obj = parseCurrentSpecObject();
     if (!obj || !obj.widget) return;
     const next = { ...obj, widget: { ...obj.widget } };
@@ -321,31 +346,38 @@ function App() {
     }
   };
 
-  const applySizeAndMeasure = async (w, h) => {
+  const applySizeAndMeasure = async (w, h, runEpoch) => {
+    if (runEpoch != null && presetEpochRef.current !== runEpoch) return { fits: false };
     resizingRef.current = true;
-    applySizeToSpec(w, h);
+    applySizeToSpec(w, h, runEpoch);
     await waitForFrameToSize(w, h);
+    if (runEpoch != null && presetEpochRef.current !== runEpoch) return { fits: false };
     const m = measureOverflow();
     return m;
   };
 
-  const handleAutoResizeByRatio = async (ratioOverride) => {
-    if (autoSizing) return;
+  const handleAutoResizeByRatio = async (ratioOverride, runEpoch = presetEpochRef.current) => {
+    // Allow a new run for a newer preset even if a previous run is in progress
+    if (autoSizing && autoResizeOwnerEpochRef.current === runEpoch) return;
     const r = ratioOverride ?? parseAspectRatio(ratioInput);
     if (!r) return;
+    autoResizeOwnerEpochRef.current = runEpoch;
     setAutoSizing(true);
     try {
       const frame = widgetFrameRef.current;
       const rect = frame ? frame.getBoundingClientRect() : null;
       const startW = rect ? Math.max(40, Math.round(rect.width)) : 200;
       const startH = Math.max(40, Math.round(startW / r));
-      let m = await applySizeAndMeasure(startW, startH);
+      if (presetEpochRef.current !== runEpoch) return;
+      let m = await applySizeAndMeasure(startW, startH, runEpoch);
+      if (presetEpochRef.current !== runEpoch) return;
       if (m.fits) {
         let low = 40;
         let high = startW;
         let best = { w: startW, h: startH };
         let lfit = false;
-        const lm = await applySizeAndMeasure(low, Math.max(40, Math.round(low / r)));
+        const lm = await applySizeAndMeasure(low, Math.max(40, Math.round(low / r)), runEpoch);
+        if (presetEpochRef.current !== runEpoch) return;
         lfit = lm.fits;
         if (lfit) {
           best = { w: low, h: Math.max(40, Math.round(low / r)) };
@@ -353,7 +385,8 @@ function App() {
           while (high - low > 1) {
             const mid = Math.floor((low + high) / 2);
             const mh = Math.max(40, Math.round(mid / r));
-            const mm = await applySizeAndMeasure(mid, mh);
+            const mm = await applySizeAndMeasure(mid, mh, runEpoch);
+            if (presetEpochRef.current !== runEpoch) return;
             if (mm.fits) {
               best = { w: mid, h: mh };
               high = mid;
@@ -362,7 +395,7 @@ function App() {
             }
           }
         }
-        await applySizeAndMeasure(best.w, best.h);
+        await applySizeAndMeasure(best.w, best.h, runEpoch);
       } else {
         let low = startW;
         let high = startW;
@@ -372,14 +405,16 @@ function App() {
           low = high;
           high = Math.min(maxCap, high * 2);
           const hh = Math.max(40, Math.round(high / r));
-          mm = await applySizeAndMeasure(high, hh);
+          mm = await applySizeAndMeasure(high, hh, runEpoch);
+          if (presetEpochRef.current !== runEpoch) return;
         }
         let best = mm.fits ? { w: high, h: Math.max(40, Math.round(high / r)) } : { w: low, h: Math.max(40, Math.round(low / r)) };
         if (mm.fits) {
           while (high - low > 1) {
             const mid = Math.floor((low + high) / 2);
             const mh = Math.max(40, Math.round(mid / r));
-            const m2 = await applySizeAndMeasure(mid, mh);
+            const m2 = await applySizeAndMeasure(mid, mh, runEpoch);
+            if (presetEpochRef.current !== runEpoch) return;
             if (m2.fits) {
               best = { w: mid, h: mh };
               high = mid;
@@ -387,12 +422,15 @@ function App() {
               low = mid;
             }
           }
-          await applySizeAndMeasure(best.w, best.h);
+          await applySizeAndMeasure(best.w, best.h, runEpoch);
         }
       }
     } finally {
-      resizingRef.current = false;
-      setAutoSizing(false);
+      // Only clear flags if we still own the current run
+      if (autoResizeOwnerEpochRef.current === runEpoch) {
+        resizingRef.current = false;
+        setAutoSizing(false);
+      }
     }
   };
 
@@ -749,7 +787,7 @@ function App() {
                   </button>
                 </div>
                 <button
-                  onClick={() => handleAutoResizeByRatio()}
+                  onClick={() => handleAutoResizeByRatio(undefined, presetEpochRef.current)}
                   disabled={autoSizing}
                   style={{
                     padding: '6px 10px',
@@ -769,7 +807,7 @@ function App() {
                   {autoSizing ? 'Sizing…' : 'Auto-Resize'}
                 </button>
                 <button
-                  onClick={restoreSizeInSpec}
+                  onClick={() => restoreSizeInSpec(presetEpochRef.current)}
                   style={{
                     padding: '6px 10px',
                     fontSize: 12,
@@ -958,6 +996,7 @@ function App() {
                     const startW = rect.width;
                     const startH = rect.height;
                     resizingRef.current = true;
+                    const dragEpoch = presetEpochRef.current;
                     let r = null;
                     if (enableAutoResize) {
                       try {
@@ -972,12 +1011,12 @@ function App() {
                       if (enableAutoResize && r) {
                         const nw = Math.max(40, Math.round(startW + dx));
                         const nh = Math.max(40, Math.round(nw / r));
-                        applySizeToSpec(nw, nh);
+                        applySizeToSpec(nw, nh, dragEpoch);
                       } else {
                         const dy = ev.clientY - startY;
                         const nw = Math.max(40, Math.round(startW + dx));
                         const nh = Math.max(40, Math.round(startH + dy));
-                        applySizeToSpec(nw, nh);
+                        applySizeToSpec(nw, nh, dragEpoch);
                       }
                     };
                     const onUp = () => {
