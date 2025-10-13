@@ -284,7 +284,7 @@ function App() {
     return v;
   };
 
-  const waitForFrameToSize = async (targetW, targetH, timeoutMs = 3000) => {
+  const waitForFrameToSize = async (targetW, targetH, timeoutMs = 600) => {
     const start = Date.now();
     for (;;) {
       const node = widgetFrameRef.current;
