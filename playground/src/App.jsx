@@ -367,7 +367,7 @@ function App() {
       const frame = widgetFrameRef.current;
       const rect = frame ? frame.getBoundingClientRect() : null;
       const startW = rect ? Math.max(40, Math.round(rect.width)) : 200;
-      const startH = Math.max(40, Math.round(startW / r));
+      const startH = Math.max(40, Math.ceil(startW / r));
       if (presetEpochRef.current !== runEpoch) return;
       let m = await applySizeAndMeasure(startW, startH, runEpoch);
       if (presetEpochRef.current !== runEpoch) return;
@@ -376,15 +376,15 @@ function App() {
         let high = startW;
         let best = { w: startW, h: startH };
         let lfit = false;
-        const lm = await applySizeAndMeasure(low, Math.max(40, Math.round(low / r)), runEpoch);
+        const lm = await applySizeAndMeasure(low, Math.max(40, Math.ceil(low / r)), runEpoch);
         if (presetEpochRef.current !== runEpoch) return;
         lfit = lm.fits;
         if (lfit) {
-          best = { w: low, h: Math.max(40, Math.round(low / r)) };
+          best = { w: low, h: Math.max(40, Math.ceil(low / r)) };
         } else {
           while (high - low > 1) {
             const mid = Math.floor((low + high) / 2);
-            const mh = Math.max(40, Math.round(mid / r));
+            const mh = Math.max(40, Math.ceil(mid / r));
             const mm = await applySizeAndMeasure(mid, mh, runEpoch);
             if (presetEpochRef.current !== runEpoch) return;
             if (mm.fits) {
@@ -404,15 +404,15 @@ function App() {
         while (!mm.fits && high < maxCap) {
           low = high;
           high = Math.min(maxCap, high * 2);
-          const hh = Math.max(40, Math.round(high / r));
+          const hh = Math.max(40, Math.ceil(high / r));
           mm = await applySizeAndMeasure(high, hh, runEpoch);
           if (presetEpochRef.current !== runEpoch) return;
         }
-        let best = mm.fits ? { w: high, h: Math.max(40, Math.round(high / r)) } : { w: low, h: Math.max(40, Math.round(low / r)) };
+        let best = mm.fits ? { w: high, h: Math.max(40, Math.ceil(high / r)) } : { w: low, h: Math.max(40, Math.ceil(low / r)) };
         if (mm.fits) {
           while (high - low > 1) {
             const mid = Math.floor((low + high) / 2);
-            const mh = Math.max(40, Math.round(mid / r));
+            const mh = Math.max(40, Math.ceil(mid / r));
             const m2 = await applySizeAndMeasure(mid, mh, runEpoch);
             if (presetEpochRef.current !== runEpoch) return;
             if (m2.fits) {
@@ -1010,7 +1010,7 @@ function App() {
                       const dx = ev.clientX - startX;
                       if (enableAutoResize && r) {
                         const nw = Math.max(40, Math.round(startW + dx));
-                        const nh = Math.max(40, Math.round(nw / r));
+                        const nh = Math.max(40, Math.ceil(nw / r));
                         applySizeToSpec(nw, nh, dragEpoch);
                       } else {
                         const dy = ev.clientY - startY;

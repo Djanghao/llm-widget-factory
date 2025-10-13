@@ -133,7 +133,7 @@ export function useAutoResize(widgetFrameRef, onSpecChange) {
       const frame = widgetFrameRef.current;
       const rect = frame ? frame.getBoundingClientRect() : null;
       const startW = rect ? Math.max(40, Math.round(rect.width)) : 200;
-      const startH = Math.max(40, Math.round(startW / r));
+      const startH = Math.max(40, Math.ceil(startW / r));
       let result = await applySizeAndMeasure(currentSpec, startW, startH);
       currentSpec = result.spec;
       let m = result.measurement;
@@ -142,15 +142,15 @@ export function useAutoResize(widgetFrameRef, onSpecChange) {
         let low = 40;
         let high = startW;
         let best = { w: startW, h: startH, spec: currentSpec };
-        const lResult = await applySizeAndMeasure(currentSpec, low, Math.max(40, Math.round(low / r)));
+        const lResult = await applySizeAndMeasure(currentSpec, low, Math.max(40, Math.ceil(low / r)));
         currentSpec = lResult.spec;
         const lfit = lResult.measurement.fits;
         if (lfit) {
-          best = { w: low, h: Math.max(40, Math.round(low / r)), spec: currentSpec };
+          best = { w: low, h: Math.max(40, Math.ceil(low / r)), spec: currentSpec };
         } else {
           while (high - low > 1) {
             const mid = Math.floor((low + high) / 2);
-            const mh = Math.max(40, Math.round(mid / r));
+            const mh = Math.max(40, Math.ceil(mid / r));
             const mResult = await applySizeAndMeasure(currentSpec, mid, mh);
             currentSpec = mResult.spec;
             if (mResult.measurement.fits) {
@@ -171,16 +171,16 @@ export function useAutoResize(widgetFrameRef, onSpecChange) {
         while (!mm.fits && high < maxCap) {
           low = high;
           high = Math.min(maxCap, high * 2);
-          const hh = Math.max(40, Math.round(high / r));
+          const hh = Math.max(40, Math.ceil(high / r));
           const hResult = await applySizeAndMeasure(currentSpec, high, hh);
           currentSpec = hResult.spec;
           mm = hResult.measurement;
         }
-        let best = mm.fits ? { w: high, h: Math.max(40, Math.round(high / r)), spec: currentSpec } : { w: low, h: Math.max(40, Math.round(low / r)), spec: currentSpec };
+        let best = mm.fits ? { w: high, h: Math.max(40, Math.ceil(high / r)), spec: currentSpec } : { w: low, h: Math.max(40, Math.ceil(low / r)), spec: currentSpec };
         if (mm.fits) {
           while (high - low > 1) {
             const mid = Math.floor((low + high) / 2);
-            const mh = Math.max(40, Math.round(mid / r));
+            const mh = Math.max(40, Math.ceil(mid / r));
             const m2Result = await applySizeAndMeasure(currentSpec, mid, mh);
             currentSpec = m2Result.spec;
             if (m2Result.measurement.fits) {
