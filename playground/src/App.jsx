@@ -56,9 +56,9 @@ function App() {
   const [iconColor, setIconColor] = useState('rgba(255, 255, 255, 0.85)');
   const [iconLibrary, setIconLibrary] = useState('sf');
   const [enableAutoResize, setEnableAutoResize] = useState(true);
-  // Epoch token to cancel stale async work when switching presets
+  const naturalSizeRef = useRef(null);
+  const naturalSizeCapturedRef = useRef(false);
   const presetEpochRef = useRef(0);
-  // Track which epoch currently owns the auto-resize run
   const autoResizeOwnerEpochRef = useRef(null);
 
   const handleSelectNode = (path) => setSelectedPath(prev => (prev === path ? null : path));
@@ -171,6 +171,12 @@ function App() {
       const rect = el.getBoundingClientRect();
       const next = { width: Math.round(rect.width), height: Math.round(rect.height) };
       setFrameSize(next);
+
+      if (!naturalSizeCapturedRef.current && !resizingRef.current && next.width > 0 && next.height > 0) {
+        naturalSizeRef.current = { width: next.width, height: next.height };
+        naturalSizeCapturedRef.current = true;
+      }
+
       const expected = expectedSizeRef.current;
       if (expected && next.width === expected.width && next.height === expected.height) {
         setIsLoading(false);
@@ -186,9 +192,9 @@ function App() {
     };
   }, [frameEl]);
 
-  // Auto-apply autoresize when enabled and spec has aspectRatio but no width/height
   useEffect(() => {
     if (!enableAutoResize) return;
+    if (!naturalSizeCapturedRef.current) return;
     const obj = parseCurrentSpecObject();
     if (!obj || !obj.widget) return;
     const w = obj.widget;
@@ -199,7 +205,7 @@ function App() {
       setRatioInput(r.toString());
       handleAutoResizeByRatio(r, epoch);
     }
-  }, [enableAutoResize, selectedExample, editedSpec]);
+  }, [enableAutoResize, selectedExample, editedSpec, naturalSizeCapturedRef.current]);
 
   // Ensure `widget.root` is serialized as the last key in `widget`
   const formatSpecWithRootLast = (spec) => {
@@ -212,15 +218,14 @@ function App() {
   };
 
   const handleExampleChange = (key) => {
-    // Bump epoch to cancel any in-flight async work from previous preset
     presetEpochRef.current += 1;
-    // Reset states tied to previous preset
     setSelectedExample(key);
     setEditedSpec('');
     setSelectedPath(null);
-    // Ensure any ongoing auto-resize is considered finished for the old preset
     setAutoSizing(false);
     resizingRef.current = false;
+    naturalSizeRef.current = null;
+    naturalSizeCapturedRef.current = false;
   };
 
   const parseCurrentSpecObject = () => {
@@ -357,16 +362,14 @@ function App() {
   };
 
   const handleAutoResizeByRatio = async (ratioOverride, runEpoch = presetEpochRef.current) => {
-    // Allow a new run for a newer preset even if a previous run is in progress
     if (autoSizing && autoResizeOwnerEpochRef.current === runEpoch) return;
     const r = ratioOverride ?? parseAspectRatio(ratioInput);
     if (!r) return;
     autoResizeOwnerEpochRef.current = runEpoch;
     setAutoSizing(true);
     try {
-      const frame = widgetFrameRef.current;
-      const rect = frame ? frame.getBoundingClientRect() : null;
-      const startW = rect ? Math.max(40, Math.round(rect.width)) : 200;
+      const naturalSize = naturalSizeRef.current;
+      const startW = naturalSize && naturalSize.width > 0 ? Math.round(naturalSize.width) : 200;
       const startH = Math.max(40, Math.ceil(startW / r));
       if (presetEpochRef.current !== runEpoch) return;
       let m = await applySizeAndMeasure(startW, startH, runEpoch);
@@ -375,23 +378,27 @@ function App() {
         let low = 40;
         let high = startW;
         let best = { w: startW, h: startH };
-        let lfit = false;
-        const lm = await applySizeAndMeasure(low, Math.max(40, Math.ceil(low / r)), runEpoch);
-        if (presetEpochRef.current !== runEpoch) return;
-        lfit = lm.fits;
-        if (lfit) {
-          best = { w: low, h: Math.max(40, Math.ceil(low / r)) };
+        if (startW - low <= 1) {
+          best = { w: startW, h: startH };
         } else {
-          while (high - low > 1) {
-            const mid = Math.floor((low + high) / 2);
-            const mh = Math.max(40, Math.ceil(mid / r));
-            const mm = await applySizeAndMeasure(mid, mh, runEpoch);
-            if (presetEpochRef.current !== runEpoch) return;
-            if (mm.fits) {
-              best = { w: mid, h: mh };
-              high = mid;
-            } else {
-              low = mid;
+          let lfit = false;
+          const lm = await applySizeAndMeasure(low, Math.max(40, Math.ceil(low / r)), runEpoch);
+          if (presetEpochRef.current !== runEpoch) return;
+          lfit = lm.fits;
+          if (lfit) {
+            best = { w: low, h: Math.max(40, Math.ceil(low / r)) };
+          } else {
+            while (high - low > 1) {
+              const mid = Math.floor((low + high) / 2);
+              const mh = Math.max(40, Math.ceil(mid / r));
+              const mm = await applySizeAndMeasure(mid, mh, runEpoch);
+              if (presetEpochRef.current !== runEpoch) return;
+              if (mm.fits) {
+                best = { w: mid, h: mh };
+                high = mid;
+              } else {
+                low = mid;
+              }
             }
           }
         }
@@ -426,7 +433,6 @@ function App() {
         }
       }
     } finally {
-      // Only clear flags if we still own the current run
       if (autoResizeOwnerEpochRef.current === runEpoch) {
         resizingRef.current = false;
         setAutoSizing(false);
