@@ -110,6 +110,9 @@ function App() {
     const compileAndWrite = async () => {
       try {
         const spec = editedSpec ? JSON.parse(editedSpec) : currentExample.spec;
+        const w = spec?.widget?.width;
+        const h = spec?.widget?.height;
+        console.log(`[COMPILE] epoch ${myEpoch}, size in spec: ${w}×${h}, resizing: ${resizingRef.current}`);
         const jsx = compileWidgetSpecToJSX(spec);
 
         if (cancelled || presetEpochRef.current !== myEpoch) return;
@@ -173,6 +176,7 @@ function App() {
       setFrameSize(next);
 
       if (!naturalSizeCapturedRef.current && !resizingRef.current && next.width > 0 && next.height > 0) {
+        console.log(`[NATURAL SIZE] Captured: ${next.width}×${next.height}, resizing: ${resizingRef.current}`);
         naturalSizeRef.current = { width: next.width, height: next.height };
         naturalSizeCapturedRef.current = true;
       }
@@ -193,15 +197,21 @@ function App() {
   }, [frameEl]);
 
   useEffect(() => {
+    console.log(`[AUTORESIZE TRIGGER] enableAutoResize: ${enableAutoResize}, captured: ${naturalSizeCapturedRef.current}`);
     if (!enableAutoResize) return;
-    if (!naturalSizeCapturedRef.current) return;
+    if (!naturalSizeCapturedRef.current) {
+      console.log('[AUTORESIZE TRIGGER] Natural size not captured yet, skipping');
+      return;
+    }
     const obj = parseCurrentSpecObject();
     if (!obj || !obj.widget) return;
     const w = obj.widget;
     const hasWH = w.width !== undefined && w.height !== undefined;
     const r = w.aspectRatio;
+    console.log(`[AUTORESIZE TRIGGER] hasWH: ${hasWH}, aspectRatio: ${r}`);
     if (!hasWH && typeof r === 'number' && isFinite(r) && r > 0) {
       const epoch = presetEpochRef.current;
+      console.log(`[AUTORESIZE TRIGGER] Triggering autoresize with ratio ${r}, epoch ${epoch}`);
       setRatioInput(r.toString());
       handleAutoResizeByRatio(r, epoch);
     }
@@ -219,6 +229,7 @@ function App() {
 
   const handleExampleChange = (key) => {
     presetEpochRef.current += 1;
+    console.log(`[PRESET CHANGE] Switching to: ${key}, epoch: ${presetEpochRef.current}`);
     setSelectedExample(key);
     setEditedSpec('');
     setSelectedPath(null);
@@ -226,6 +237,7 @@ function App() {
     resizingRef.current = false;
     naturalSizeRef.current = null;
     naturalSizeCapturedRef.current = false;
+    console.log('[PRESET CHANGE] Reset naturalSize flags');
   };
 
   const parseCurrentSpecObject = () => {
@@ -353,11 +365,13 @@ function App() {
 
   const applySizeAndMeasure = async (w, h, runEpoch) => {
     if (runEpoch != null && presetEpochRef.current !== runEpoch) return { fits: false };
+    console.log(`[TEST SIZE] Testing ${w}×${h}, epoch ${runEpoch}`);
     resizingRef.current = true;
     applySizeToSpec(w, h, runEpoch);
     await waitForFrameToSize(w, h);
     if (runEpoch != null && presetEpochRef.current !== runEpoch) return { fits: false };
     const m = measureOverflow();
+    console.log(`[TEST SIZE] Result ${w}×${h}: fits=${m.fits}`);
     return m;
   };
 
@@ -365,22 +379,27 @@ function App() {
     if (autoSizing && autoResizeOwnerEpochRef.current === runEpoch) return;
     const r = ratioOverride ?? parseAspectRatio(ratioInput);
     if (!r) return;
+    console.log(`[AUTORESIZE START] ratio: ${r}, epoch: ${runEpoch}, naturalSize: ${JSON.stringify(naturalSizeRef.current)}`);
     autoResizeOwnerEpochRef.current = runEpoch;
     setAutoSizing(true);
     try {
       const naturalSize = naturalSizeRef.current;
       const startW = naturalSize && naturalSize.width > 0 ? Math.round(naturalSize.width) : 200;
       const startH = Math.max(40, Math.ceil(startW / r));
+      console.log(`[AUTORESIZE START] Starting size: ${startW}×${startH}`);
       if (presetEpochRef.current !== runEpoch) return;
       let m = await applySizeAndMeasure(startW, startH, runEpoch);
       if (presetEpochRef.current !== runEpoch) return;
       if (m.fits) {
+        console.log('[AUTORESIZE] Start size fits, trying to shrink');
         let low = 40;
         let high = startW;
         let best = { w: startW, h: startH };
         if (startW - low <= 1) {
+          console.log('[AUTORESIZE] Start size already minimal, using it');
           best = { w: startW, h: startH };
         } else {
+          console.log(`[AUTORESIZE] Binary search range: [${low}, ${high}]`);
           let lfit = false;
           const lm = await applySizeAndMeasure(low, Math.max(40, Math.ceil(low / r)), runEpoch);
           if (presetEpochRef.current !== runEpoch) return;
@@ -402,8 +421,10 @@ function App() {
             }
           }
         }
+        console.log(`[AUTORESIZE] Shrink phase done, best: ${best.w}×${best.h}`);
         await applySizeAndMeasure(best.w, best.h, runEpoch);
       } else {
+        console.log('[AUTORESIZE] Start size overflow, trying to expand');
         let low = startW;
         let high = startW;
         let mm = m;
@@ -429,6 +450,7 @@ function App() {
               low = mid;
             }
           }
+          console.log(`[AUTORESIZE] Expand phase done, best: ${best.w}×${best.h}`);
           await applySizeAndMeasure(best.w, best.h, runEpoch);
         }
       }
@@ -436,6 +458,7 @@ function App() {
       if (autoResizeOwnerEpochRef.current === runEpoch) {
         resizingRef.current = false;
         setAutoSizing(false);
+        console.log(`[AUTORESIZE END] Completed for epoch ${runEpoch}`);
       }
     }
   };
